@@ -1,10 +1,21 @@
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import CustomUser
 
-# Inherits from BaseUserCreationForm.
-# It has three fields: username (from the user model), password1, and password2. 
-# It verifies that password1 and password2 match, validates the password using validate_password(), and sets the user’s password using set_password().
-# To help prevent confusion with similar usernames, the form doesn’t allow usernames that differ only in case.
+
+from allauth.account.forms import SignupForm
+from .models import CustomUser
+
+class CustomSignupForm(SignupForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        del self.fields['username']
+
+    def save(self, request):
+        user = super().save(request)
+        user.email = self.cleaned_data['email']
+        user.save()
+        return user
+    
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = CustomUser
