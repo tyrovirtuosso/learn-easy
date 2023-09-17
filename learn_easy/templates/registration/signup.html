@@ -9,4 +9,11 @@
   {{ form.as_p }}
   <button type="submit">Sign Up</button>
 </form>
+
+<!-- Add social auth buttons -->
+{% load socialaccount %}
+<a href="{% provider_login_url 'github' %}">Login with Github</a>
+
+<a href="{% provider_login_url 'google' %}">Login with Google</a>
+
 {% endblock %}

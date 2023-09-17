@@ -8,5 +8,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("users/", include("usersApp.urls")),
     path("users/", include("django.contrib.auth.urls")),
-
+    path("accounts/", include("allauth.urls")),  # This line should include allauth.urls under accounts/
 ]
