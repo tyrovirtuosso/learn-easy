@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Item Detail</title>
+</head>
+<body>
+    <h1>Item Detail</h1>
+    <h2>{{ item.word }}</h2>
+    <p>Category: {{ item.category }}</p>
+    {% comment %} <p>Meaning: {{ item.meaning }}</p> {% endcomment %}
+    <p>{{ item.meaning|linebreaksbr }}</p>
+    <a href="{% url 'items:item_list' %}">Back to Item List</a>
+</body>
+</html>
