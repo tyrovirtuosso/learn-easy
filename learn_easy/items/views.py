@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Item
 from .forms import ItemForm
-from django.contrib.auth.decorators import login_required  # Import login_required decorator
+from django.contrib.auth.decorators import login_required 
 from openai_API.api import OpenAI_API
 from django.contrib import messages
 
@@ -36,7 +36,6 @@ def create_item(request):
             
             print("getting meaning\n")
             meaning = ai.get_meaning(corrected_word, detected_category)
-            print(f"meaning: {meaning}")
             
             item.word = corrected_word
             item.category = detected_category
@@ -48,7 +47,6 @@ def create_item(request):
             
             # Redirect to the same page
             return redirect('items:create_item')
-            # return redirect('items:item_list')
     else:
         form = ItemForm()
     return render(request, 'items/item_form.html', {'form': form})
