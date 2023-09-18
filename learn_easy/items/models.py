@@ -5,6 +5,7 @@ class Item(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     word = models.CharField(max_length=255)
     category = models.CharField(max_length=100)
+    meaning = models.TextField(default="Not specified")
 
     def __str__(self):
         return self.word
