@@ -1,6 +1,7 @@
 import os
 import openai
 import ast
+from pprint import pprint
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -37,7 +38,7 @@ class OpenAI_API:
         
         system_msg = {
             "role": "system",
-            "content": "I will give you a list of words. I need you to check if the spelling of the words are correct and if not correct the spelling and return the same list with the corrected words. Don't give anything else in the response, only return the completed and corrected list that i can use in python programming language."
+            "content": "You are a master of vocabulary. I will give you a list of words or a single word. I need you to check if the spelling of the words are correct and if not correct the spelling and return the same list with the corrected words. Don't give anything else in the response, only return the completed and corrected list that i can use in python programming language."
             }
         user_msg = {"role": "user", "content": words_string}
 
@@ -91,7 +92,6 @@ class OpenAI_API:
         messages.append(user_msg)
         
         chat_response = self.use_model(messages, model="gpt-4", temperature=1.3)
-        print(chat_response)
     
     def get_meaning(self, word, category):
         messages = []
@@ -106,7 +106,7 @@ class OpenAI_API:
         messages.append(system_msg)
         messages.append(user_msg)
 
-        chat_response = self.use_model(messages, model="gpt-4", temperature=0.2)
+        chat_response = self.use_model(messages, model="gpt-4", temperature=0.2, max_tokens=8000)
         return (chat_response)
         
 

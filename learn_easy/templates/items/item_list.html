@@ -1,18 +1,22 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
     <title>Item List</title>
 </head>
 <body>
+    <div id="notifications"></div>
+    <script src="{% static 'items/polls.js' %}"></script>
     <h1>Item List</h1>
     <ul>
         {% for item in items %}
-            <li>
-                <a href="{% url 'items:item_detail' item.pk %}">{{ item.word }}</a> - {{ item.category }}
+            <li id="item-{{item.id}}">
+                <a href="{% url 'items:item_detail' item.pk %}">{{ item.word }}</a> <span class="category"> - {{ item.category }}</span>
                 <a href="{% url 'items:delete_item' item.pk %}" onclick="return confirm('Are you sure you want to delete the item {{ item.word }}?')">Delete</a>
             </li>
         {% endfor %}
     </ul>
     <a href="{% url 'items:create_item' %}">Create New Item</a>
+    
 </body>
 </html>
