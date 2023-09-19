@@ -27,13 +27,17 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Custom Apps
     "usersApp.apps.UsersappConfig",
     "items.apps.ItemsConfig",
+    # Django Channels
+    "channels",
+    # allauth app
     "django.contrib.sites",
     "allauth", 
     "allauth.account",
     "allauth.socialaccount", 
-    # social providers
+    # allauth social providers
     "allauth.socialaccount.providers.github", 
     "allauth.socialaccount.providers.google",
     
@@ -145,7 +149,11 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = "static/"
+STATIC_URL = 'static/'
+# STATICFILES_DIRS = [
+#     BASE_DIR / "static"
+# ]
+STATIC_ROOT = BASE_DIR.parent / "local-cdn" / "static"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -154,3 +162,9 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = 'email'
 
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "home"
+
+
+CHANNEL_LAYERS = {
+    # 'default': {'BACKEND': 'channels_redis.core.RedisChannelLayer',},
+    "default":{"BACKEND": "channels.layers.InMemoryChannelLayer"},
+}
