@@ -79,7 +79,11 @@ def item_detail(request, pk):
 @login_required
 def item_list(request):
     items = Item.objects.all()
-    return render(request, 'items/item_list.html', {'items': items})
+    # return render(request, 'items/item_list.html', {'items': items})
+    response = render(request, 'items/item_list.html', {'items': items})
+    # Reloads the page when there is no-store even when we go back to this page from pressing the browsers back button
+    response['Cache-Control'] = 'no-store'
+    return response
 
 @login_required
 def delete_item(request, pk):

@@ -27,8 +27,8 @@ socket.addEventListener("message", (event) => {
             // Add link to item detail and delete link after category is updated
             itemElement.innerHTML = `<a href="/items/item/${messageData.item_id}/">${messageData.word}</a> - <span class="category">${messageData.category}</span> 
                                      <a href="/items/delete/${messageData.item_id}/" onclick="return confirm('Are you sure you want to delete the item ${messageData.word}?')">Delete</a>`;
-            // // Refresh the page
-            // location.reload();
+            // Refresh the page
+            location.reload();
         }
     }
 }
