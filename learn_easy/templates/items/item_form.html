@@ -9,11 +9,12 @@
     {% if messages %}
         <ul class="messages">
             {% for message in messages %}
-                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% if message.tags == 'info' %}
+                    <li>{{ message }}</li>
+                {% endif %}
             {% endfor %}
         </ul>
     {% endif %}
-
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}

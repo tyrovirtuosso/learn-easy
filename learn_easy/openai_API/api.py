@@ -106,7 +106,7 @@ class OpenAI_API:
         messages.append(system_msg)
         messages.append(user_msg)
 
-        chat_response = self.use_model(messages, model="gpt-3.5-turbo", temperature=0.2, max_tokens=8000)
+        chat_response = self.use_model(messages, model="gpt-3.5-turbo", temperature=0.2, max_tokens=3900)
         return (chat_response)
         
 

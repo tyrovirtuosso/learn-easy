@@ -12,14 +12,16 @@ from .utils import send_ws_message_to_user_group
 ai = OpenAI_API()
 
 @login_required
-def create_item(request):
+def create_item(request):    
+    storage = messages.get_messages(request)
+    storage.used = True
     if request.method == 'POST':
         form = ItemForm(request.POST)
         if form.is_valid():
             item = form.save(commit=False)
             item.user = request.user
             word = form.cleaned_data['word']
-            messages.success(request, f'{word} saved successfully.')
+            messages.info(request, f'{word} saved successfully.')
             try:
                 corrected_word = ai.spelling_corrector([word])[0]
                 print(f"corrected_word:{corrected_word}")
