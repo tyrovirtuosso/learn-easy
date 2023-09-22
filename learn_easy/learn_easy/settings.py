@@ -27,6 +27,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Django Extensions
+    "django_extensions",
     # Custom Apps
     "usersApp.apps.UsersappConfig",
     "items.apps.ItemsConfig",
@@ -87,6 +89,7 @@ LOGIN_REDIRECT_URL = "home"
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_FORMS = {'signup': 'usersApp.forms.CustomSignupForm'}
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1 
 
 # Provider specific settings
 SOCIALACCOUNT_PROVIDERS = {
@@ -167,3 +170,6 @@ CHANNEL_LAYERS = {
     # 'default': {'BACKEND': 'channels_redis.core.RedisChannelLayer',},
     "default":{"BACKEND": "channels.layers.InMemoryChannelLayer"},
 }
+
+# django-extensions configuration
+SHELL_PLUS = "ipython"
