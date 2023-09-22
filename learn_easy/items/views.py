@@ -5,11 +5,11 @@ from django.contrib.auth.decorators import login_required
 from openai_API.api import OpenAI_API
 from django.contrib import messages
 from threading import Thread
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
+from django.http import HttpResponseForbidden
+import openai
+from .utils import send_ws_message_to_user_group
 
 ai = OpenAI_API()
-
 
 @login_required
 def create_item(request):
@@ -20,29 +20,23 @@ def create_item(request):
             item.user = request.user
             word = form.cleaned_data['word']
             messages.success(request, f'{word} saved successfully.')
-            
-            corrected_word = ai.spelling_corrector([word])[0]
-            print(f"corrected_word:{corrected_word}")
-            item.word = corrected_word
-            item.save()
-            
-            # Send notification
-            channel_layer = get_channel_layer()
-            print(channel_layer)
-            async_to_sync(channel_layer.group_send)(
-                "notifications",
-                {
-                    "type": "send_notification",
-                    "message": f"Word {corrected_word} saved!",
-                    "item_id": item.id,
-                    "category": None,  # No category yet
-                    "word": corrected_word  # Include the word
-                }
-            )
-                        
-            # Start thread to populate meaning
-            thread = Thread(target=get_meaning, args=(item, corrected_word))
-            thread.start()                               
+            try:
+                corrected_word = ai.spelling_corrector([word])[0]
+                print(f"corrected_word:{corrected_word}")
+                item.word = corrected_word
+                item.save() 
+
+                # Update item on item_list page
+                send_ws_message_to_user_group(request.user, message_type="item_update", data=item)
+
+                # Start thread to populate meaning
+                thread = Thread(target=get_meaning, args=(item, corrected_word, request))
+                thread.start()     
+            except openai.OpenAIError as e:
+                item.delete()  # Delete the item
+                print(f'OPENAI API Error: {e}. {word} not saved.')
+                messages.error(request, f'Server Error. {word} not saved.')  # Send error message
+                return redirect('items:create_item')  # Redirect back to the form                          
             
             # Redirect to the same page
             return redirect('items:create_item')
@@ -50,30 +44,34 @@ def create_item(request):
         form = ItemForm()
     return render(request, 'items/item_form.html', {'form': form})
 
-def get_meaning(item, corrected_word):
-    detected_category = ai.get_category(corrected_word)
-    meaning = ai.get_meaning(corrected_word, detected_category)
-    item.category = detected_category
-    item.meaning = meaning
-    item.save() 
-    print("MEANING SAVED!")
-    # Send notification
-    channel_layer = get_channel_layer()
-    async_to_sync(channel_layer.group_send)(
-        "notifications",
-        {
-            "type": "send_notification",
-            "message": f"Meaning for {corrected_word} saved!",
-            "item_id": item.id,
-            "category": detected_category, 
-            "word": corrected_word 
-        }
-    )
+def get_meaning(item, corrected_word, request):
+    try:       
+        detected_category = ai.get_category(corrected_word)
+        item.category = detected_category
+        
+        # Update item on item_list page
+        send_ws_message_to_user_group(request.user, message_type="item_update", data=item)
+        
+        meaning = ai.get_meaning(corrected_word, detected_category)
+        item.meaning = meaning
+        
+        # Update item on item_list page
+        send_ws_message_to_user_group(request.user, message_type="item_update", data=item)
+        
+        item.save() 
+        print("MEANING SAVED!")
+        
+    except openai.OpenAIError as e:        
+        print(f'OPENAI API Error: {e}. {item.word} not saved.')
+        item.delete()
+        return redirect('items:create_item')  # Redirect back to the form       
 
 
 @login_required
 def item_detail(request, pk):
     item = get_object_or_404(Item, pk=pk)
+    if request.user != item.user and not request.user.is_superuser:
+        return HttpResponseForbidden("You are not allowed to delete this item.")
     return render(request, 'items/item_detail.html', {'item': item})
 
 @login_required
@@ -87,6 +85,8 @@ def item_list(request):
 
 @login_required
 def delete_item(request, pk):
-    item = Item.objects.get(pk=pk)
+    item = get_object_or_404(Item, pk=pk)
+    if request.user != item.user and not request.user.is_superuser:
+        return HttpResponseForbidden("You are not allowed to delete this item.")
     item.delete()
     return redirect('items:item_list')

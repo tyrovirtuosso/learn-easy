@@ -75,7 +75,7 @@ class OpenAI_API:
         messages.append(system_msg)
         messages.append(user_msg)
         
-        chat_response = self.use_model(messages, model="gpt-4", temperature=1.3)
+        chat_response = self.use_model(messages, model="gpt-3.5-turbo", temperature=1.3)
         print(chat_response)
         
     def check_answer(self):
@@ -91,7 +91,7 @@ class OpenAI_API:
         messages.append(system_msg)
         messages.append(user_msg)
         
-        chat_response = self.use_model(messages, model="gpt-4", temperature=1.3)
+        chat_response = self.use_model(messages, model="gpt-3.5-turbo", temperature=1.3)
     
     def get_meaning(self, word, category):
         messages = []
@@ -106,7 +106,7 @@ class OpenAI_API:
         messages.append(system_msg)
         messages.append(user_msg)
 
-        chat_response = self.use_model(messages, model="gpt-4", temperature=0.2, max_tokens=8000)
+        chat_response = self.use_model(messages, model="gpt-3.5-turbo", temperature=0.2, max_tokens=8000)
         return (chat_response)
         
 
