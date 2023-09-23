@@ -15,7 +15,6 @@ DEBUG = True
 
 ALLOWED_HOSTS =  ['localhost', '127.0.0.1', 'example.com']
 
-# ACCOUNT_ADAPTER = 'usersApp.adapters.usersAppAdapter'
 
 
 # Application definition
@@ -42,6 +41,7 @@ INSTALLED_APPS = [
     # allauth social providers
     "allauth.socialaccount.providers.github", 
     "allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.twitter_oauth2",
     
 ]
 
@@ -88,8 +88,10 @@ ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 LOGIN_REDIRECT_URL = "home"
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_FORMS = {'signup': 'usersApp.forms.CustomSignupForm'}
+SOCIALACCOUNT_FORMS = {'signup': 'usersApp.forms.SocialCustomSignupForm',}
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1 
+ACCOUNT_ADAPTER = 'usersApp.adapters.CustomAccountAdapter'
 
 # Provider specific settings
 SOCIALACCOUNT_PROVIDERS = {
@@ -97,6 +99,13 @@ SOCIALACCOUNT_PROVIDERS = {
         'APP': {
             'client_id': os.environ.get('GITHUB_OAUTH_CLIENT_ID'),
             'secret': os.environ.get('GITHUB_OAUTH_CLIENT_SECRET'),
+            'key': ''
+        }
+    },
+    'twitter_oauth2': {
+        'APP': {
+            'client_id': os.environ.get('TWITTER_OAUTH_CLIENT_ID'),
+            'secret': os.environ.get('TWITTER_OAUTH_CLIENT_SECRET'),
             'key': ''
         }
     },
@@ -124,9 +133,6 @@ DATABASES = {
     }
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {

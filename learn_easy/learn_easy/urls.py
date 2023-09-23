@@ -6,9 +6,10 @@ from django.conf.urls.static import static
 from usersApp.views import login_request, login_view
 from items.consumers import UserNotificationConsumer
 
-urlpatterns = [
+urlpatterns = [ 
     path("accounts/login/", login_request, name='account_login'),
     path("accounts/signup/", login_request, name='account_signup'),
+    # path("accounts/signup/", login_request, name='socialaccount_signup'),
     path("accounts/login/link/", login_view, name='login_link'),
     path("", TemplateView.as_view(template_name="home.html"), name="home"),
     path("admin/", admin.site.urls),

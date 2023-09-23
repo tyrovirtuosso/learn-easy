@@ -23,4 +23,9 @@
     <input type="submit" value="Login with Google">
 </form>
 
+<form method="post" action="{% provider_login_url 'twitter_oauth2' %}">
+    {% csrf_token %}
+    <input type="submit" value="Login with Twitter">
+</form>
+
 {% endblock %}
