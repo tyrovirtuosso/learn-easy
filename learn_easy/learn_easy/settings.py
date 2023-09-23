@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     # Custom Apps
     "usersApp.apps.UsersappConfig",
     "items.apps.ItemsConfig",
+    "decks.apps.DecksConfig",
     # Django Channels
     "channels",
     # allauth app

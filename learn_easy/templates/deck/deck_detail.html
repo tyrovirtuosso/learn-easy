@@ -1,0 +1,12 @@
+{% extends "_base.html" %}
+
+{% block content %}
+<h2>Deck Details</h2>
+<h3>{{ deck.name }}</h3>
+<ul>
+    {% for item in deck.items.all %}
+        <li>{{ item.word }} - {{ item.meaning }}</li>
+    {% endfor %}
+</ul>
+<a href="{% url 'decks:deck_list' %}">Back to Deck List</a>
+{% endblock %}
