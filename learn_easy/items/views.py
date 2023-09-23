@@ -92,3 +92,5 @@ def delete_item(request, pk):
         return HttpResponseForbidden("You are not allowed to delete this item.")
     item.delete()
     return redirect('items:item_list')
+
+

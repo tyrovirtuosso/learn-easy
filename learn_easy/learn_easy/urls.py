@@ -9,12 +9,12 @@ from items.consumers import UserNotificationConsumer
 urlpatterns = [ 
     path("accounts/login/", login_request, name='account_login'),
     path("accounts/signup/", login_request, name='account_signup'),
-    # path("accounts/signup/", login_request, name='socialaccount_signup'),
     path("accounts/login/link/", login_view, name='login_link'),
     path("", TemplateView.as_view(template_name="home.html"), name="home"),
     path("admin/", admin.site.urls),
     path("accounts/", include("allauth.urls")), 
     path('items/', include('items.urls')),
+    path('decks/', include('decks.urls')),
 ]
 
 websocket_urlpatterns = [
