@@ -1,15 +1,13 @@
 from django.contrib import admin
 from django import forms
-from django.http.request import HttpRequest
-from django.http.response import HttpResponse
-from .models import Item, Notification
+from .models import Card, Notification
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from django.http import HttpResponseRedirect
 from django.urls import path
 
 
-admin.site.register(Item)
+admin.site.register(Card)
 
 class SendNotificationForm(forms.Form):
     message = forms.CharField(label="Notification Message", max_length=200)

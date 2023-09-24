@@ -8,7 +8,7 @@ def send_ws_message_to_user_group(user, message_type, data):
 
     Args:
         user (User): The user to send the message to.
-        message_type (str): The message type (e.g., "item_update"). This will be used to recognize the function in consumer and event in .js
+        message_type (str): The message type (e.g., "card_update"). This will be used to recognize the function in consumer and event in .js
         data (dict): The data to send in the message.
 
     Returns:
@@ -21,6 +21,6 @@ def send_ws_message_to_user_group(user, message_type, data):
         f"user_{email}", # The channel group which is the users email
         {
             "type": message_type,
-            "item": data,
+            "card": data,
         }
     )

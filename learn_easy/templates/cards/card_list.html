@@ -1,0 +1,34 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Card List</title>
+</head>
+<body>
+    {% comment %} <script src="{% static 'cards/user_card_update_notification.js' %}"></script> {% endcomment %}
+    <script src="{% static 'cards/bfcache_page_reload.js' %}"></script>
+    <h1>Card List</h1>
+    <ul id="card-list">
+        {% for card in cards %}
+            <li data-id="{{ card.pk }}">
+                {% if card.meaning %}
+                    <a href="{% url 'cards:card_detail' card.pk %}" class="word">{{ card.word }}</a>: 
+                {% else %}
+                    {{ card.word }}:
+                {% endif %}
+                {% if card.category %}
+                    <span class="category">
+                        <span class="category-value"> {{ card.category }}</span>
+                    </span>
+                {% endif %}
+                {% if card.meaning %}
+                    <span class="actions">
+                        <a href="{% url 'cards:delete_card' card.pk %}" class="delete-link" onclick="return confirm('Are you sure you want to delete the card {{ card.word }}?')"> Delete </a>
+                    </span>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'cards:create_card' %}">Create New Card</a>
+</body>
+</html>

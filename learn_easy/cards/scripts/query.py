@@ -1,4 +1,4 @@
-from items.models import Item
+from cards.models import Card
 from usersApp.models import CustomUser
 import os
 import django
@@ -12,14 +12,14 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "learn_easy.settings")
 django.setup()
 
 
-def getAllItemsWithFieldValues(model):
-    items = model.objects.all()
-    for item in items:    
+def getAllCardsWithFieldValues(model):
+    cards = model.objects.all()
+    for card in cards:    
         print()
         for field in model._meta.fields:
             field_name = field.name
-            field_value = getattr(item, field_name)
-            print(f"{item}.{field_name}: {field_value}")
+            field_value = getattr(card, field_name)
+            print(f"{card}.{field_name}: {field_value}")
 
 def run():
-    getAllItemsWithFieldValues(CustomUser)
+    getAllCardsWithFieldValues(CustomUser)

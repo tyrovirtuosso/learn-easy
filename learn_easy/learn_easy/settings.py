@@ -30,7 +30,7 @@ INSTALLED_APPS = [
     "django_extensions",
     # Custom Apps
     "usersApp.apps.UsersappConfig",
-    "items.apps.ItemsConfig",
+    "cards.apps.CardsConfig",
     "decks.apps.DecksConfig",
     # Django Channels
     "channels",

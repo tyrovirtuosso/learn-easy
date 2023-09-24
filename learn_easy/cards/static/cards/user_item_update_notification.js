@@ -2,74 +2,74 @@ let reconnectInterval = 1000; // Initial reconnect interval in milliseconds
 
 function connectWebSocket() {
     const websocketProtocol = window.location.protocol === "https:" ? "wss" : "ws";
-    const wsEndpoint = `${websocketProtocol}://${window.location.host}/ws/user_item_notifications/`;
+    const wsEndpoint = `${websocketProtocol}://${window.location.host}/ws/user_card_notifications/`;
     
     const socket = new WebSocket(wsEndpoint);
 
     socket.onopen = () => {
-        console.log("WebSocket user_item_notifications opened!");
+        console.log("WebSocket user_card_notifications opened!");
         reconnectInterval = 1000; // Reset the reconnect interval on successful connection
     };
 
     socket.addEventListener("message", (event) => {
         console.log("Received WebSocket message:", event.data);
-        const item = JSON.parse(event.data);
+        const card = JSON.parse(event.data);
 
-        if (item.type === "item_update") {
-            // Find the list item with the matching ID or add a new one
-            let listItem = document.querySelector(`#item-list li[data-id="${item.id}"]`);
+        if (card.type === "card_update") {
+            // Find the list card with the matching ID or add a new one
+            let listCard = document.querySelector(`#card-list li[data-id="${card.id}"]`);
 
-            if (listItem) {
+            if (listCard) {
                 // Check if category information is available
-                if (item.category !== undefined && item.category !== null && item.category !== "") {
-                    let categoryElement = listItem.querySelector(".category-value");
+                if (card.category !== undefined && card.category !== null && card.category !== "") {
+                    let categoryElement = listCard.querySelector(".category-value");
                     if (categoryElement) {
-                        categoryElement.textContent = item.category;
+                        categoryElement.textContent = card.category;
                     }
                 }
 
                 // Check if meaning information is available
-                if (item.meaning !== undefined && item.meaning !== null && item.meaning !== "") {
+                if (card.meaning !== undefined && card.meaning !== null && card.meaning !== "") {
                     // Update the word link
-                    let wordElement = listItem.querySelector(".word");
+                    let wordElement = listCard.querySelector(".word");
                     if (wordElement) {
-                        wordElement.href = item.detail_url;
+                        wordElement.href = card.detail_url;
                     }
 
                     // Update the delete link
-                    let deleteLink = listItem.querySelector(".delete-link");
+                    let deleteLink = listCard.querySelector(".delete-link");
                     if (deleteLink) {
                         deleteLink.textContent = "Delete";
-                        deleteLink.href = item.delete_url;
+                        deleteLink.href = card.delete_url;
                     }
                 }
             } else {
-                // Create a new list item if it doesn't exist
-                listItem = document.createElement("li");
-                listItem.setAttribute("data-id", item.id);
+                // Create a new list card if it doesn't exist
+                listCard = document.createElement("li");
+                listCard.setAttribute("data-id", card.id);
             
-                // Create the child elements for the new list item
+                // Create the child elements for the new list card
                 const wordElement = document.createElement("a");
                 wordElement.className = "word";
-                wordElement.textContent = item.word;
-                listItem.appendChild(wordElement);
+                wordElement.textContent = card.word;
+                listCard.appendChild(wordElement);
 
                 // Add the colon ":" after the word
-                listItem.appendChild(document.createTextNode(": "));
+                listCard.appendChild(document.createTextNode(": "));
             
                 const categoryElement = document.createElement("span");
                 categoryElement.className = "category-value";
-                listItem.appendChild(categoryElement);
+                listCard.appendChild(categoryElement);
 
                 // Add two spaces after the category value
-                listItem.appendChild(document.createTextNode("  "));
+                listCard.appendChild(document.createTextNode("  "));
             
                 const deleteLink = document.createElement("a");
                 deleteLink.className = "delete-link";
-                listItem.appendChild(deleteLink);
+                listCard.appendChild(deleteLink);
             
-                // Append the new list item to the list
-                document.getElementById("item-list").appendChild(listItem);
+                // Append the new list card to the list
+                document.getElementById("card-list").appendChild(listCard);
             }
         }
     });

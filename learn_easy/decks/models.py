@@ -1,23 +1,23 @@
 from django.db import models
 from usersApp.models import CustomUser 
-from items.models import Item
+from cards.models import Card
 
 
 class Deck(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
-    items = models.ManyToManyField(Item, through='DeckItem')
+    cards = models.ManyToManyField(Card, through='DeckCard')
     is_public = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
 
-class DeckItem(models.Model):
+class DeckCard(models.Model):
     deck = models.ForeignKey(Deck, on_delete=models.CASCADE)
-    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    card = models.ForeignKey(Card, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.deck.name} - {self.item.word}'
+        return f'{self.deck.name} - {self.card.word}'
     
     
     
