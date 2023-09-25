@@ -1,9 +1,9 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .models import Item
-from decks.models import Deck, DeckItem
+from .models import Card
+from decks.models import Deck, DeckCard
 
-@receiver(post_save, sender=Item)
+@receiver(post_save, sender=Card)
 def create_default_deck(sender, instance, created, **kwargs):
     if created:
         # Check if the user already has a "default" deck
@@ -11,5 +11,5 @@ def create_default_deck(sender, instance, created, **kwargs):
             user=instance.user,
             name="default",
         )
-        # Add the item to the default deck
-        DeckItem.objects.create(deck=default_deck, item=instance)
+        # Add the card to the default deck
+        DeckCard.objects.create(deck=default_deck, card=instance)

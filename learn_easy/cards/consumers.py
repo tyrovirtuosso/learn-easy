@@ -21,15 +21,15 @@ class UserNotificationConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_discard(f"user_{email}", self.channel_name)
     
     async def item_update(self, event):
-        item = event["item"]
+        card = event["card"]
         await self.send(text_data=json.dumps({
             "type": str(event["type"]),
-            "pk": item.pk,
-            "word": item.word,
-            "category": item.category,
-            "meaning": "" if item.meaning.lower() == "not specified" else item.meaning,
-            "detail_url": reverse('items:item_detail', args=[item.pk]),
-            "delete_url": reverse('items:delete_item', args=[item.pk]),
+            "pk": card.pk,
+            "word": card.word,
+            "category": card.category,
+            "meaning": "" if card.meaning.lower() == "not specified" else card.meaning,
+            "detail_url": reverse('items:item_detail', args=[card.pk]),
+            "delete_url": reverse('items:delete_item', args=[card.pk]),
         }))
 
                 

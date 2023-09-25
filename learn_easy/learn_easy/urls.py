@@ -4,7 +4,7 @@ from django.views.generic.base import TemplateView
 from django.conf import settings
 from django.conf.urls.static import static
 from usersApp.views import login_request, login_view
-from items.consumers import UserNotificationConsumer
+from cards.consumers import UserNotificationConsumer
 
 urlpatterns = [ 
     path("accounts/login/", login_request, name='account_login'),
@@ -13,12 +13,12 @@ urlpatterns = [
     path("", TemplateView.as_view(template_name="home.html"), name="home"),
     path("admin/", admin.site.urls),
     path("accounts/", include("allauth.urls")), 
-    path('items/', include('items.urls')),
+    path('cards/', include('cards.urls')),
     path('decks/', include('decks.urls')),
 ]
 
 websocket_urlpatterns = [
-    path("ws/user_item_notifications/", UserNotificationConsumer.as_asgi()),
+    path("ws/user_card_notifications/", UserNotificationConsumer.as_asgi()),
 ]
 
 # Add this to serve static files during development

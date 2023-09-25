@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Create Item</title>
+    <title>Create Card</title>
 </head>
 <body>
-    <h1>Create Item</h1>
+    <h1>Create Card</h1>
 
     {% if messages %}
         <ul class="messages">
@@ -20,6 +20,6 @@
         {{ form.as_p }}
         <button type="submit">Save</button>
     </form>
-    <a href="{% url 'items:item_list' %}">Back to Item List</a>
+    <a href="{% url 'cards:card_list' %}">Back to Card List</a>
 </body>
 </html>
