@@ -20,24 +20,24 @@ def create_card(request):
         if form.is_valid():
             card = form.save(commit=False)
             card.user = request.user
-            word = form.cleaned_data['word']
-            messages.info(request, f'{word} saved successfully.')
+            card_name = form.cleaned_data['card_name']
+            messages.info(request, f'{card_name} saved successfully.')
             try:
-                corrected_word = ai.spelling_corrector([word])[0]
-                print(f"corrected_word:{corrected_word}")
-                card.word = corrected_word
+                corrected_card_name = ai.spelling_corrector([card_name])[0]
+                print(f"corrected_card_name:{corrected_card_name}")
+                card.card_name = corrected_card_name
                 card.save() 
 
                 # Update card on card_list page
                 send_ws_message_to_user_group(request.user, message_type="card_update", data=card)
 
                 # Start thread to populate meaning
-                thread = Thread(target=get_meaning, args=(card, corrected_word, request))
+                thread = Thread(target=get_meaning, args=(card, corrected_card_name, request))
                 thread.start()     
             except openai.OpenAIError as e:
                 card.delete()  # Delete the card
-                print(f'OPENAI API Error: {e}. {word} not saved.')
-                messages.error(request, f'Server Error. {word} not saved.')  # Send error message
+                print(f'OPENAI API Error: {e}. {card_name} not saved.')
+                messages.error(request, f'Server Error. {card_name} not saved.')  # Send error message
                 return redirect('cards:create_card')  # Redirect back to the form                          
             
             # Redirect to the same page
@@ -46,16 +46,16 @@ def create_card(request):
         form = CardForm()
     return render(request, 'cards/card_form.html', {'form': form})
 
-def get_meaning(card, corrected_word, request):
+def get_meaning(card, corrected_card_name, request):
     try:       
-        detected_category = ai.get_category(corrected_word)
-        card.category = detected_category
+        system_defined_tags = ai.get_category(corrected_card_name)
+        card.system_defined_tags = system_defined_tags
         
         # Update card on card_list page
         send_ws_message_to_user_group(request.user, message_type="card_update", data=card)
         
-        meaning = ai.get_meaning(corrected_word, detected_category)
-        card.meaning = meaning
+        meaning = ai.get_meaning(corrected_card_name, system_defined_tags)
+        card.card_content_system_generated = meaning
         
         # Update card on card_list page
         send_ws_message_to_user_group(request.user, message_type="card_update", data=card)
@@ -64,7 +64,7 @@ def get_meaning(card, corrected_word, request):
         print("MEANING SAVED!")
         
     except openai.OpenAIError as e:        
-        print(f'OPENAI API Error: {e}. {card.word} not saved.')
+        print(f'OPENAI API Error: {e}. {card.card_name} not saved.')
         card.delete()
         return redirect('cards:create_card')  # Redirect back to the form       
 

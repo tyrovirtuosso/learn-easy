@@ -11,19 +11,19 @@
     <ul id="card-list">
         {% for card in cards %}
             <li data-id="{{ card.pk }}">
-                {% if card.meaning %}
-                    <a href="{% url 'cards:card_detail' card.pk %}" class="word">{{ card.word }}</a>: 
+                {% if card.card_content_system_generated %}
+                    <a href="{% url 'cards:card_detail' card.pk %}" class="card_name">{{ card.card_name }}</a>: 
                 {% else %}
-                    {{ card.word }}:
+                    {{ card.card_name }}:
                 {% endif %}
-                {% if card.category %}
+                {% if card.system_defined_tags %}
                     <span class="category">
-                        <span class="category-value"> {{ card.category }}</span>
+                        <span class="category-value"> {{ card.system_defined_tags }}</span>
                     </span>
                 {% endif %}
-                {% if card.meaning %}
+                {% if card.card_content_system_generated %}
                     <span class="actions">
-                        <a href="{% url 'cards:delete_card' card.pk %}" class="delete-link" onclick="return confirm('Are you sure you want to delete the card {{ card.word }}?')"> Delete </a>
+                        <a href="{% url 'cards:delete_card' card.pk %}" class="delete-link" onclick="return confirm('Are you sure you want to delete the card {{ card.card_name }}?')"> Delete </a>
                     </span>
                 {% endif %}
             </li>

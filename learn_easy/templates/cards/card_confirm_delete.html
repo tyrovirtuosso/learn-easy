@@ -5,7 +5,7 @@
 </head>
 <body>
     <h1>Confirm Delete Card</h1>
-    <p>Are you sure you want to delete "{{ card.word }}"?</p>
+    <p>Are you sure you want to delete "{{ card.card_name }}"?</p>
     <form method="post">
         {% csrf_token %}
         <button type="submit">Yes, Delete</button>

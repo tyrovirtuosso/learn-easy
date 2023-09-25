@@ -1,4 +1,4 @@
-from cards.models import Card
+from cards.models import Card, Level
 from usersApp.models import CustomUser
 import os
 import django
@@ -20,6 +20,12 @@ def getAllCardsWithFieldValues(model):
             field_name = field.name
             field_value = getattr(card, field_name)
             print(f"{card}.{field_name}: {field_value}")
+            
+def delete_all(model):
+    values = model.objects.all()
+    count = values.count()
+    values.delete()
+    print(f'Deleted {count} items.')
 
 def run():
-    getAllCardsWithFieldValues(CustomUser)
+    delete_all(Level)
