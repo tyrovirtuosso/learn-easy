@@ -18,7 +18,7 @@ def create_deck(request):
             else:
                 deck = Deck(user=user, name=name)
                 deck.save()
-                return redirect('deck_list') 
+                return redirect('decks:deck_list') 
     else:
         form = DeckForm()
 
