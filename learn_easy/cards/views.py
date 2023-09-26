@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Card
+from .models import Card, Tag
 from .forms import CardForm
 from django.contrib.auth.decorators import login_required 
 from openai_API.api import OpenAI_API
@@ -18,19 +18,26 @@ def create_card(request):
     if request.method == 'POST':
         form = CardForm(request.POST)
         if form.is_valid():
-            card = form.save(commit=False)
-            card.user = request.user
             card_name = form.cleaned_data['card_name']
-            messages.info(request, f'{card_name} saved successfully.')
             try:
                 corrected_card_name = ai.spelling_corrector([card_name])[0]
                 print(f"corrected_card_name:{corrected_card_name}")
+                                
+                # Check if a card with the same card_name already exists
+                if Card.objects.filter(card_name__iexact=corrected_card_name, user=request.user).exists():
+                    if card_name.lower() == corrected_card_name.lower():
+                        messages.info(request, f'A card with the name "{card_name}" already exists.')
+                    else:
+                        messages.info(request, f'A card with the corrected name "{corrected_card_name}" already exists.')
+                    return redirect('cards:create_card')
+                
+                card = form.save(commit=False)
+                card.user = request.user
+                messages.info(request, f'{card_name} saved successfully.')
+                
                 card.card_name = corrected_card_name
                 card.save() 
-
-                # Update card on card_list page
-                send_ws_message_to_user_group(request.user, message_type="card_update", data=card)
-
+                
                 # Start thread to populate meaning
                 thread = Thread(target=get_meaning, args=(card, corrected_card_name, request))
                 thread.start()     
@@ -48,17 +55,25 @@ def create_card(request):
 
 def get_meaning(card, corrected_card_name, request):
     try:       
-        system_defined_tags = ai.get_category(corrected_card_name)
-        card.system_defined_tags = system_defined_tags
+        system_defined_tag_names = ai.get_category(corrected_card_name)
+        # Clear existing tags and add the new ones
+        card.system_defined_tags.clear()
+                
+        for tag_name in system_defined_tag_names:            
+            # Get or Create the Tag instance with the given name
+            tag, created = Tag.objects.get_or_create(tag_name=tag_name.upper())  
+            
+            if created:
+                tag.save()
+                
+            # Add the tag to the card's system_defined_tags
+            card.system_defined_tags.add(tag)
         
-        # Update card on card_list page
-        send_ws_message_to_user_group(request.user, message_type="card_update", data=card)
-        
-        meaning = ai.get_meaning(corrected_card_name, system_defined_tags)
+        meaning = ai.get_meaning(corrected_card_name)
         card.card_content_system_generated = meaning
         
         # Update card on card_list page
-        send_ws_message_to_user_group(request.user, message_type="card_update", data=card)
+        # send_ws_message_to_user_group(request.user, message_type="card_update", data=card)
         
         card.save() 
         print("MEANING SAVED!")
