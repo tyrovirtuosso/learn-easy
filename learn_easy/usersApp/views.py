@@ -23,7 +23,7 @@ def login_view(request):
             if token.is_valid():
                 login(request, token.user)
                 token.delete()
-                return redirect('home')
+                return redirect('dashboard')
             else:
                 return render(request, 'account/login_link.html', {'error': 'Invalid or expired login link.'})
         except OneTimeToken.DoesNotExist:
