@@ -4,7 +4,7 @@ from .models import Card, Level
 from decks.models import Deck, DeckCard
 
 @receiver(post_save, sender=Card)
-def create_default_deck(sender, instance, created, **kwargs):
+def create_default_deck_for_new_card(sender, instance, created, **kwargs):
     if created:
         # Check if the user already has a "default" deck
         default_deck, created = Deck.objects.get_or_create(
