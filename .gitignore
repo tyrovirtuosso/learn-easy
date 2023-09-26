@@ -166,3 +166,4 @@ cython_debug/
 local-cdn
 learn_easy/items/static/items/draft.js
 output.txt
+draft.py
