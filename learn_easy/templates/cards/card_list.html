@@ -11,14 +11,16 @@
     <ul id="card-list">
         {% for card in cards %}
             <li data-id="{{ card.pk }}">
-                {% if card.card_content_system_generated %}
-                    <a href="{% url 'cards:card_detail' card.pk %}" class="card_name">{{ card.card_name }}</a>: 
-                {% else %}
-                    {{ card.card_name }}:
-                {% endif %}
-                {% if card.system_defined_tags %}
+                <a href="{% url 'cards:card_detail' card.pk %}" class="card_name">{{ card.card_name }}</a>:
+                {% if card.system_defined_tags.all %}
                     <span class="category">
-                        <span class="category-value"> {{ card.system_defined_tags }}</span>
+                        <span class="category-value">
+                            {% for tag in card.system_defined_tags.all %}
+                                 {{ tag.tag_name }}
+                                 {% if not forloop.last %}, {% endif %} 
+                                 {% comment %}  to add a comma between multiple tags but not after the last tag to ensure proper formatting. {% endcomment %}
+                            {% endfor %}
+                        </span>
                     </span>
                 {% endif %}
                 {% if card.card_content_system_generated %}

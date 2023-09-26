@@ -4,11 +4,33 @@
     <title>Card Detail</title>
 </head>
 <body>
+    {% load markdown_extras %}
     <h1>Card Detail</h1>
-    <h2>{{ card.card_name }}</h2>
-    <p>Category: {{ card.category }}</p>
-    {% comment %} <p>Meaning: {{ card.meaning }}</p> {% endcomment %}
-    <p>{{ card.meaning|linebreaksbr }}</p>
+    <div class="card-detail">
+        <h2>{{ card.card_name }}</h2>
+        
+        <div class="categories">
+            <h3>Categories:</h3>
+            <ul>
+                {% for tag in card.system_defined_tags.all %}
+                    <li>{{ tag.tag_name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <div class="card-content">
+            <h3>Card Content:</h3>
+            {% comment %} <p>{{ card.card_content_system_generated|linebreaksbr }}</p> {% endcomment %}
+            <div class="markdown-content">
+                <p>{{ card.card_content_system_generated | markdown | safe }}</p>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <a href="{% url 'cards:delete_card' card.pk %}" class="delete-link" onclick="return confirm('Are you sure you want to delete the card {{ card.card_name }}?')"> Delete </a>
+        </div>
+    </div>
+    
     <a href="{% url 'cards:card_list' %}">Back to Card List</a>
 </body>
 </html>
