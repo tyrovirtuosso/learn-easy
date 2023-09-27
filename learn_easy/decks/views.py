@@ -31,5 +31,6 @@ def deck_list(request):
 
 @login_required
 def deck_detail(request, deck_id):
-    deck = get_object_or_404(Deck, id=deck_id, user=request.user)  # Assuming you're using authentication
-    return render(request, 'deck/deck_detail.html', {'deck': deck})
+    deck = get_object_or_404(Deck, id=deck_id, user=request.user)  
+    cards = deck.cards.all()  # related_name='cards' in Cards to decks ManyToManyField
+    return render(request, 'deck/deck_detail.html', {'deck': deck, 'cards': cards})
