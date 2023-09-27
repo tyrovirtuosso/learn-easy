@@ -15,13 +15,3 @@ class Deck(models.Model):
         # Ensure that deck names are case-insensitive unique
         self.name = self.name.lower()
         super(Deck, self).save(*args, **kwargs)
-
-# class DeckCard(models.Model):
-#     deck = models.ForeignKey(Deck, on_delete=models.CASCADE)
-#     card = models.ForeignKey(Card, on_delete=models.CASCADE)
-
-#     def __str__(self):
-#         return f'{self.deck.name} - {self.card.card_name}'
-    
-#     class Meta:
-#         unique_together = ['deck', 'card']
