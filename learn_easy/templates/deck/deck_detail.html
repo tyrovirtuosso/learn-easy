@@ -1,12 +1,11 @@
 {% extends "_base.html" %}
 
 {% block content %}
-<h2>Deck Details</h2>
-<h3>{{ deck.name }}</h3>
+<h2>{{ deck.name }} dfsdf</h2>
 <ul>
-    {% for card in deck.cards.all %}
+    {% for card in cards %}
         <li data-id="{{ card.pk }}">
-        <a href="{% url 'cards:card_detail' card.pk %}" class="card_name">{{ card.card_name }}</a>:
+        <a href="{% url 'cards:card_detail' card.pk %}" class="card_name">{{ card.card_name }}</a>
         </li>
     {% endfor %}
 </ul>
