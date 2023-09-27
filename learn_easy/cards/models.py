@@ -1,5 +1,5 @@
 from django.db import models
-from usersApp.models import CustomUser 
+from usersApp.models import CustomUser
 
 # Tags Table
 class Tag(models.Model):
@@ -31,6 +31,7 @@ class Level(models.Model):
 class Card(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name="Owner of the Card")
     card_name = models.CharField(max_length=255, verbose_name="Card Name (for review)")
+    decks = models.ManyToManyField('decks.Deck', related_name='cards')
     system_defined_tags = models.ManyToManyField(Tag, related_name="system_defined_cards", verbose_name="System Defined Tags")
     user_defined_tags = models.ManyToManyField(Tag, related_name="user_defined_cards", verbose_name="User Defined Tags")
     card_content_system_generated = models.TextField(verbose_name="System Generated Content")
@@ -42,6 +43,30 @@ class Card(models.Model):
 
     def __str__(self):
         return self.card_name
+
+class CardDeck(models.Model):
+    card = models.ForeignKey(Card, on_delete=models.CASCADE)
+    deck = models.ForeignKey('decks.Deck', on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('card', 'deck')
+    
+    # def delete(self, *args, **kwargs):
+    #     if self.decks.count() == 1 and self.decks.first().name == 'default':
+    #         super().delete(*args, **kwargs)
+    #     else:
+    #         pass
+    #         # prompt user to decide whether to remove from all decks
+        
+    
+    # def delete(self, using=None, keep_parents=False):
+    #     if self.decks.count() > 1:
+    #         # Prompt the user to decide whether to remove the card from all decks
+    #         pass
+    #     else:
+    #         super().delete(using, keep_parents)
+        
+    
 
 
 # Card-Tags Table
