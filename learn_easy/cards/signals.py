@@ -20,4 +20,4 @@ def create_levels(sender, **kwargs):
 @receiver(post_save, sender=CustomUser)
 def create_default_deck(sender, instance, created, **kwargs):
     if created:
-        Deck.objects.create(name='default', user=instance)
+        Deck.objects.create(deck_name='default', user=instance)

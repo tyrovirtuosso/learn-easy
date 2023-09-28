@@ -3,6 +3,7 @@ from .models import Deck
 from .forms import DeckForm
 from django.contrib.auth.decorators import login_required 
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
 
 
 @login_required
@@ -10,13 +11,13 @@ def create_deck(request):
     if request.method == 'POST':
         form = DeckForm(request.POST)
         if form.is_valid():
-            name = form.cleaned_data['name']
+            deck_name = form.cleaned_data['deck_name']
             user = request.user  
 
-            if name.lower() == 'default':
-                form.add_error('name', 'You cannot create a deck with this name.')
+            if deck_name.lower() == 'default':
+                form.add_error('deck_name', 'You cannot create a deck with this deck_name.')
             else:
-                deck = Deck(user=user, name=name)
+                deck = Deck(user=user, deck_name=deck_name)
                 deck.save()
                 return redirect('decks:deck_list') 
     else:
