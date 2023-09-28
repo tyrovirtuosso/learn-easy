@@ -17,7 +17,16 @@
     {% endif %}
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        {% if form.decks %}
+            {{ form.decks.label_tag }}: {{ form.decks }}
+            <p>Select one or more existing decks.</p>
+        {% else %}
+            <p>{{ form.default_deck_message }}</p>
+        {% endif %}
+        {{ form.new_deck.label_tag }}: {{ form.new_deck }}
+        <p>Type in the name of a new deck to create.</p>
+        {{ form.card_name.label_tag }}: {{ form.card_name }}
+        {% comment %} {{ form.as_p }} {% endcomment %}
         <button type="submit">Save</button>
     </form>
     <a href="{% url 'cards:card_list' %}">Back to Card List</a>
