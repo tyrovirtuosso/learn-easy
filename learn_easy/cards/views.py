@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Card, Tag, CardDeck
+from .models import Card, Tag
 from decks.models import Deck
 from .forms import CardForm
 from django.contrib.auth.decorators import login_required 
