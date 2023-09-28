@@ -4,6 +4,7 @@
     <title>Card Detail</title>
 </head>
 <body>
+    {% load custom_filters %}
     {% load markdown_extras %}
     <h1>Card Detail</h1>
     <div class="card-detail">
@@ -34,12 +35,50 @@
                 <p>{{ card.card_content_system_generated | markdown | safe }}</p>
             </div>
         </div>
-        
-        <div class="actions">
-            <a href="{% url 'cards:delete_card' card.pk %}" class="delete-link" onclick="return confirm('Are you sure you want to delete the card {{ card.card_name }}?')"> Delete </a>
-        </div>
     </div>
-    
+
+
+    {% if card.decks.all|filter_exclude_default|length > 1 %}
+        <form method="post" action="{% url 'cards:bulk_delete_card' card.pk %}">
+            {% csrf_token %}
+            
+            <h3>Select Decks:</h3>
+            <ul>
+                {% for deck in card.decks.all|filter_exclude_default %}
+                    <li>
+                        <label>
+                            <input type="checkbox" name="decks" value="{{ deck.pk }}">
+                            {{ deck.deck_name }}
+                        </label>
+                    </li>
+                {% endfor %}
+            </ul>
+            
+            <h3>Deletion Options:</h3>
+            <label>
+                <input type="radio" name="deletion_option" value="all" checked>
+                Delete from all selected decks
+            </label>
+            <label>
+                <input type="radio" name="deletion_option" value="selected">
+                Delete only from selected decks
+            </label>
+            
+            <button type="submit">Delete Card</button>
+        </form>
+    {% elif card.decks.all|filter_exclude_default|length == 1 %}
+        <form method="post" action="{% url 'cards:delete_card' card.pk %}">
+            {% csrf_token %}
+            <button type="submit">Delete Card</button>
+        </form>
+    {% else %}
+        <p>This card is only in the 'default' deck.</p>
+        <form method="post" action="{% url 'cards:delete_card' card.pk %}">
+            {% csrf_token %}
+            <button type="submit">Delete Card</button>
+        </form>
+    {% endif %}
+
     <a href="{% url 'cards:card_list' %}">Back to Card List</a>
 </body>
 </html>

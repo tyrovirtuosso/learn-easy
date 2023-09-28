@@ -211,3 +211,23 @@ def delete_card(request, pk):
     return redirect('cards:card_list')
 
 
+@login_required
+@transaction.atomic
+def bulk_delete_card(request, pk):
+    card = get_object_or_404(Card, pk=pk)
+    
+    if request.method == 'POST':
+        selected_decks = request.POST.getlist('decks')
+        deletion_option = request.POST.get('deletion_option')
+        
+        if deletion_option == 'all':
+            # Delete the card from all decks
+            card.delete()
+            return redirect('cards:card_detail', pk=card.pk)
+        
+        elif deletion_option == 'selected':
+            # Delete the card only from selected decks
+            card.decks.remove(*selected_decks)
+            return redirect('cards:card_list')
+    
+    return render(request, 'cards/bulk_delete_card.html', {'card': card})
