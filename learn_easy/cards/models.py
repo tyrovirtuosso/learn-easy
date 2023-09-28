@@ -69,13 +69,13 @@ class Card(models.Model):
     
 
 
-# Card-Tags Table
-class CardTag(models.Model):
-    card = models.ForeignKey(Card, on_delete=models.CASCADE, verbose_name="Card")
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE, verbose_name="Tag")
+# # Card-Tags Table
+# class CardTag(models.Model):
+#     card = models.ForeignKey(Card, on_delete=models.CASCADE, verbose_name="Card")
+#     tag = models.ForeignKey(Tag, on_delete=models.CASCADE, verbose_name="Tag")
 
-    def __str__(self):
-        return f"{self.card} - {self.tag}"
+#     def __str__(self):
+#         return f"{self.card} - {self.tag}"
 
 
 # Review Table
