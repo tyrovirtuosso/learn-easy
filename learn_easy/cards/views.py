@@ -32,6 +32,7 @@ def create_card(request):
     
     return render(request, 'cards/card_form.html', {'card_deck_creation_form': card_deck_creation_form, 'form': card_form})
 
+@login_required
 def create_deck(request, form):
     if form.is_valid():
         new_deck = form.save(commit=False)
@@ -43,6 +44,7 @@ def create_deck(request, form):
             messages.success(request, f"Deck '{new_deck.deck_name}' created successfully.")
             return redirect('cards:create_card')
 
+@login_required
 def create_card_helper(request, form):
     if form.is_valid():
         card = form.save(commit=False)

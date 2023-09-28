@@ -17,10 +17,19 @@
                 {% endfor %}
             </ul>
         </div>
+
+        <div class="decks">
+            <h3>Associated Decks:</h3>
+            <ul>
+                {% for deck in card.decks.all %}
+                    <li>{{ deck.deck_name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        
         
         <div class="card-content">
             <h3>Card Content:</h3>
-            {% comment %} <p>{{ card.card_content_system_generated|linebreaksbr }}</p> {% endcomment %}
             <div class="markdown-content">
                 <p>{{ card.card_content_system_generated | markdown | safe }}</p>
             </div>
