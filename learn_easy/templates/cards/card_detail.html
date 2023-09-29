@@ -38,7 +38,7 @@
     </div>
 
 
-    {% if card.decks.all|filter_exclude_default|length > 1 %}
+    {% if card.decks.all|filter_exclude_default|length > 0 %}
         <form method="post" action="{% url 'cards:bulk_delete_card' card.pk %}">
             {% csrf_token %}
             
@@ -57,27 +57,36 @@
             <h3>Deletion Options:</h3>
             <label>
                 <input type="radio" name="deletion_option" value="all" checked>
-                Delete from all selected decks
+                Permanently Delete Card
             </label>
             <label>
                 <input type="radio" name="deletion_option" value="selected">
-                Delete only from selected decks
+                Delete only from selected Decks
             </label>
             
             <button type="submit">Delete Card</button>
         </form>
-    {% elif card.decks.all|filter_exclude_default|length == 1 %}
-        <form method="post" action="{% url 'cards:delete_card' card.pk %}">
-            {% csrf_token %}
-            <button type="submit">Delete Card</button>
-        </form>
     {% else %}
-        <p>This card is only in the 'default' deck.</p>
+        <p>Permanently Delete Card</p>
         <form method="post" action="{% url 'cards:delete_card' card.pk %}">
             {% csrf_token %}
             <button type="submit">Delete Card</button>
         </form>
     {% endif %}
+
+    <!-- Add Card to Deck Form -->
+    <form method="post" action="{% url 'cards:add_card_to_deck' card.pk %}">
+        {% csrf_token %}
+        {{ add_form.as_p }}
+        <button type="submit">Add Card to Deck</button>
+    </form>
+
+    <!-- Remove Card from Deck Form -->
+    <form method="post" action="{% url 'cards:remove_card_from_deck' card.pk %}">
+        {% csrf_token %}
+        {{ remove_form.as_p }}
+        <button type="submit">Remove Card from Deck</button>
+    </form>
 
     <a href="{% url 'cards:card_list' %}">Back to Card List</a>
 </body>

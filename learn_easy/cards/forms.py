@@ -11,7 +11,6 @@ class CardDeckCreationForm(forms.ModelForm):
 
     def clean_deck_name(self):
         deck_name = self.cleaned_data.get('deck_name')
-        print(deck_name)
         if Deck.objects.filter(deck_name=deck_name).exists():
             raise forms.ValidationError("A deck with this deck_name already exists.")
         return deck_name
@@ -58,4 +57,14 @@ class CardForm(forms.ModelForm):
                     card.decks.add(deck)
         return card
     
-    
+class AddCardToDeckForm(forms.Form):
+    deck = forms.ModelChoiceField(queryset=Deck.objects.none())
+
+class RemoveCardFromDeckForm(forms.Form):
+    deck = forms.ModelChoiceField(queryset=Deck.objects.none())
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super(RemoveCardFromDeckForm, self).__init__(*args, **kwargs)
+        if user is not None:
+            self.fields['deck'].queryset = user.deck_set.exclude(deck_name='default')
