@@ -44,52 +44,31 @@ class Card(models.Model):
     def __str__(self):
         return self.card_name
 
-# class CardDeck(models.Model):
-#     card = models.ForeignKey(Card, on_delete=models.CASCADE)
-#     deck = models.ForeignKey('decks.Deck', on_delete=models.CASCADE)
-
-#     class Meta:
-#         unique_together = ('card', 'deck')
-    
-    # def delete(self, *args, **kwargs):
-    #     if self.decks.count() == 1 and self.decks.first().name == 'default':
-    #         super().delete(*args, **kwargs)
-    #     else:
-    #         pass
-    #         # prompt user to decide whether to remove from all decks
-        
-    
-    # def delete(self, using=None, keep_parents=False):
-    #     if self.decks.count() > 1:
-    #         # Prompt the user to decide whether to remove the card from all decks
-    #         pass
-    #     else:
-    #         super().delete(using, keep_parents)
-        
-    
-
-
-# # Card-Tags Table
-# class CardTag(models.Model):
-#     card = models.ForeignKey(Card, on_delete=models.CASCADE, verbose_name="Card")
-#     tag = models.ForeignKey(Tag, on_delete=models.CASCADE, verbose_name="Tag")
-
-#     def __str__(self):
-#         return f"{self.card} - {self.tag}"
-
 
 # Review Table
 class Review(models.Model):
     card = models.ForeignKey(Card, on_delete=models.CASCADE, verbose_name="Card")
-    ease_of_recall = models.CharField(max_length=10, default="not easy", verbose_name="Ease of Recall")
-    outcome = models.BooleanField(verbose_name="Outcome (Correct or Wrong)")
+    EASE_CHOICES = [
+        (False, 'Not Easy'),
+        (True, 'Easy'),
+    ]
+    ease_of_recall = models.BooleanField(default=False, choices=EASE_CHOICES, verbose_name="Ease of Recall")
+    OUTCOME_CHOICES = [
+        (False, 'Wrong'),
+        (True, 'Correct'),
+    ]
+    outcome = models.BooleanField(default=False, choices=OUTCOME_CHOICES, verbose_name="Outcome (Correct or Wrong)")
     total_attempts = models.IntegerField(verbose_name="Total Attempts")
     total_correct = models.IntegerField(verbose_name="Total Correct")
     accuracy = models.FloatField(verbose_name="Accuracy (Percentage)")
     completion_time = models.IntegerField(verbose_name="Completion Time (minutes)")
     last_review = models.DateField(verbose_name="Last Review")
     next_review = models.DateField(verbose_name="Next Review")
-    priority_level = models.IntegerField(default=0, verbose_name="Priority Level")
+    PRIORITY_CHOICES = [
+        (0, 'No Priority'),
+        (1, 'Priority'),
+    ]
+    priority_level = models.IntegerField(default=0, choices=PRIORITY_CHOICES, verbose_name="Priority Level")
     level = models.ForeignKey(Level, on_delete=models.CASCADE, verbose_name="Level ID")
 
     def __str__(self):
