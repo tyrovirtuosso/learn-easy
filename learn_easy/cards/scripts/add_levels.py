@@ -4,14 +4,9 @@ import django
 from pprint import pprint
 
 
-# Set the DJANGO_SETTINGS_MODULE environment variable to your project's settings module
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "learn_easy.settings")
-
-# Initialize Django
-django.setup()
-
-
 def add_levels():
+    if Level.objects.exists():
+        return
     levels_data = [
         {
             "name": "Discovery Novice",
@@ -82,4 +77,10 @@ def add_levels():
 
 
 def run():
+    # Set the DJANGO_SETTINGS_MODULE environment variable to your project's settings module
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "learn_easy.settings")
+
+    # Initialize Django
+    django.setup()
+    
     add_levels()

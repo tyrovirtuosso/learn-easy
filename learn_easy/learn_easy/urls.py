@@ -15,6 +15,8 @@ urlpatterns = [
     path("accounts/", include("allauth.urls")), 
     path('cards/', include('cards.urls')),
     path('decks/', include('decks.urls')),
+    path('dashboard/', include('dashboard.urls')),
+
 ]
 
 websocket_urlpatterns = [

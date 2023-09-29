@@ -1,23 +1,17 @@
 from django.db import models
-from usersApp.models import CustomUser 
-from cards.models import Card
-
 
 class Deck(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    name = models.CharField(max_length=255)
-    cards = models.ManyToManyField(Card, through='DeckCard')
+    user = models.ForeignKey('usersApp.CustomUser', on_delete=models.CASCADE)
+    deck_name = models.CharField(max_length=255, unique=True, verbose_name="Deck Name")
     is_public = models.BooleanField(default=False)
+    
+    class Meta:
+        unique_together = ['user', 'deck_name']
 
     def __str__(self):
-        return self.name
-
-class DeckCard(models.Model):
-    deck = models.ForeignKey(Deck, on_delete=models.CASCADE)
-    card = models.ForeignKey(Card, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f'{self.deck.name} - {self.card.word}'
-    
-    
-    
+        return self.deck_name
+        
+    def save(self, *args, **kwargs):
+        # Ensure that deck names are case-insensitive unique
+        self.deck_name = self.deck_name.lower()
+        super(Deck, self).save(*args, **kwargs)

@@ -1,5 +1,5 @@
 from django.db import models
-from usersApp.models import CustomUser 
+from usersApp.models import CustomUser
 
 # Tags Table
 class Tag(models.Model):
@@ -30,7 +30,8 @@ class Level(models.Model):
 # Card Table
 class Card(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name="Owner of the Card")
-    card_name = models.CharField(max_length=255, verbose_name="Card Name (for review)")
+    card_name = models.CharField(max_length=255, verbose_name="Card Name")
+    decks = models.ManyToManyField('decks.Deck', related_name='cards')
     system_defined_tags = models.ManyToManyField(Tag, related_name="system_defined_cards", verbose_name="System Defined Tags")
     user_defined_tags = models.ManyToManyField(Tag, related_name="user_defined_cards", verbose_name="User Defined Tags")
     card_content_system_generated = models.TextField(verbose_name="System Generated Content")
@@ -44,27 +45,30 @@ class Card(models.Model):
         return self.card_name
 
 
-# Card-Tags Table
-class CardTag(models.Model):
-    card = models.ForeignKey(Card, on_delete=models.CASCADE, verbose_name="Card")
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE, verbose_name="Tag")
-
-    def __str__(self):
-        return f"{self.card} - {self.tag}"
-
-
 # Review Table
 class Review(models.Model):
     card = models.ForeignKey(Card, on_delete=models.CASCADE, verbose_name="Card")
-    ease_of_recall = models.CharField(max_length=10, default="not easy", verbose_name="Ease of Recall")
-    outcome = models.BooleanField(verbose_name="Outcome (Correct or Wrong)")
+    EASE_CHOICES = [
+        (False, 'Not Easy'),
+        (True, 'Easy'),
+    ]
+    ease_of_recall = models.BooleanField(default=False, choices=EASE_CHOICES, verbose_name="Ease of Recall")
+    OUTCOME_CHOICES = [
+        (False, 'Wrong'),
+        (True, 'Correct'),
+    ]
+    outcome = models.BooleanField(default=False, choices=OUTCOME_CHOICES, verbose_name="Outcome (Correct or Wrong)")
     total_attempts = models.IntegerField(verbose_name="Total Attempts")
     total_correct = models.IntegerField(verbose_name="Total Correct")
     accuracy = models.FloatField(verbose_name="Accuracy (Percentage)")
     completion_time = models.IntegerField(verbose_name="Completion Time (minutes)")
     last_review = models.DateField(verbose_name="Last Review")
     next_review = models.DateField(verbose_name="Next Review")
-    priority_level = models.IntegerField(default=0, verbose_name="Priority Level")
+    PRIORITY_CHOICES = [
+        (0, 'No Priority'),
+        (1, 'Priority'),
+    ]
+    priority_level = models.IntegerField(default=0, choices=PRIORITY_CHOICES, verbose_name="Priority Level")
     level = models.ForeignKey(Level, on_delete=models.CASCADE, verbose_name="Level ID")
 
     def __str__(self):

@@ -19,10 +19,12 @@ frozenlist==1.4.0
 h11==0.14.0
 httptools==0.6.0
 idna==3.4
+Markdown==3.4.4
 msgpack==1.0.5
 multidict==6.0.4
 oauthlib==3.2.2
 openai==0.28.0
+Pillow==10.0.1
 pycparser==2.21
 PyJWT==2.8.0
 python-dotenv==1.0.0

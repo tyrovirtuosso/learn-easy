@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     "usersApp.apps.UsersappConfig",
     "cards.apps.CardsConfig",
     "decks.apps.DecksConfig",
+    "dashboard.apps.DashboardConfig",
     # Django Channels
     "channels",
     # allauth app
@@ -87,7 +88,7 @@ AUTHENTICATION_BACKENDS = (
 SITE_ID = 1
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
-LOGIN_REDIRECT_URL = "home"
+LOGIN_REDIRECT_URL = "dashboard"
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_FORMS = {'signup': 'usersApp.forms.CustomSignupForm'}
 SOCIALACCOUNT_FORMS = {'signup': 'usersApp.forms.SocialCustomSignupForm',}
@@ -170,7 +171,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "usersApp.CustomUser"
 ACCOUNT_USER_MODEL_USERNAME_FIELD = 'email'
 
-LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "home"
 
 

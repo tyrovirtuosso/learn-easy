@@ -4,6 +4,16 @@
     <title>Create Card</title>
 </head>
 <body>
+
+    <h2>Create a New Deck</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ card_deck_creation_form.deck_name.label_tag }}: 
+        <input type="text" name="{{ card_deck_creation_form.deck_name.name }}" id="{{ card_deck_creation_form.deck_name.id }}">
+        <button type="submit">Create Deck</button>
+    </form>
+
+
     <h1>Create Card</h1>
 
     {% if messages %}
@@ -15,9 +25,18 @@
             {% endfor %}
         </ul>
     {% endif %}
+
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        {% if form.decks %}
+            {{ form.decks.label_tag }}: {{ form.decks }}
+            <p>Select one or more existing decks.</p>
+        {% else %}
+            <p>{{ form.default_deck_message }}</p>
+        {% endif %}
+
+        {{ form.card_name.label_tag }}: {{ form.card_name }}
+        {% comment %} {{ form.as_p }} {% endcomment %}
         <button type="submit">Save</button>
     </form>
     <a href="{% url 'cards:card_list' %}">Back to Card List</a>

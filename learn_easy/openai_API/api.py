@@ -51,9 +51,16 @@ class OpenAI_API:
     
     def get_category(self, word):
         messages = []
+        content = (
+                "Generate specific categories for the given word or phrase. Each category should be detailed and not generalized (e.g., avoid categories like 'adjective' or 'noun'). You can provide multiple categories if they are suitable for the word or phrase.\n"
+                "Output Format:\n"
+                "- Provide the categories in the form of a Python list.\n"
+                "- The list should contain only the categories as strings; there should be no additional content in the output.\n"
+            )
+
         system_msg = {
             "role": "system",
-            "content": f"I want you to give a specific category for the word presented. The category should be specifc and not generalized like verb, or adjective. Only give the category as output, nothing else.  Heres the word/phrase/topic: {word}. I emphasize again, never give a generalized category like adjective, noun, verb, etc as category."
+            "content": content
             }
         user_msg = {"role": "user", "content": word}
         
@@ -61,7 +68,11 @@ class OpenAI_API:
         messages.append(user_msg)
         
         chat_response = self.use_model(messages, model="gpt-4")
-        return str(chat_response)
+        
+        # Convert the string to a list
+        chat_response_list = ast.literal_eval(str(chat_response))
+
+        return chat_response_list
     
     def get_question(self):
         messages = []
@@ -93,20 +104,29 @@ class OpenAI_API:
         
         chat_response = self.use_model(messages, model="gpt-3.5-turbo", temperature=1.3)
     
-    def get_meaning(self, word, category):
+    def get_meaning(self, word):
         messages = []
         
+        content = (
+            "Generate a clear and concise explanation for the given word or topic using simple language and first principles.\n"
+            "Provide real-life examples to illustrate your explanation.\n"
+            "The output should be in markdown format so that I can use it on the webpage.\n"
+            "There should be no additional content in the output, only the explanation in the the markdown format.\n"
+            "Mark important points(if any) in bold markdown to highlight its importance."
+        )
+
+                    
         system_msg = {
             "role": "system",
-            "content": f"You are a master of vocabulary and great teacher of teaching from first principles and simple manners that explain the nuanced details in an simple and elegant manner. The user will give a word or topic along with a category, and you should give the meaning using simple language and first principles approach. Also give real life examples while explaining. Apart from what i specified, there shouldn't be anything else in the output."
+            "content": content
             }
         
-        user_msg = {"role": "user", "content": f"{word}:{category}"}
+        user_msg = {"role": "user", "content": f"{word}"}
         
         messages.append(system_msg)
         messages.append(user_msg)
 
-        chat_response = self.use_model(messages, model="gpt-3.5-turbo", temperature=0.2, max_tokens=3900)
+        chat_response = self.use_model(messages, model="gpt-4", temperature=0.2, max_tokens=3900)
         return (chat_response)
         
 

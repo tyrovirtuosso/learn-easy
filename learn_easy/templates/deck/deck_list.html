@@ -4,7 +4,7 @@
 <h2>Deck List</h2>
 <ul>
     {% for deck in decks %}
-        <li><a href="{% url 'decks:deck_detail' deck.id %}">{{ deck.name }}</a></li>
+        <li><a href="{% url 'decks:deck_detail' deck.id %}">{{ deck.deck_name }}</a></li>
     {% endfor %}
 </ul>
 <a href="{% url 'decks:create_deck' %}">Create a Deck</a>
