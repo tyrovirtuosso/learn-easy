@@ -8,5 +8,5 @@ urlpatterns = [
     path('deck/<int:deck_id>/', views.deck_detail, name='deck_detail'),
     path('<int:deck_id>/add_card/', views.add_card_to_deck, name='add_card_to_deck'),
     path('<int:deck_id>/remove_card/<int:card_pk>/', views.remove_card_from_deck, name='remove_card_from_deck'),
-    path('review/<int:deck_id>/', views.ReviewView.as_view(), name='review'),
+    path('review/<int:deck_id>/', views.review_deck, name='review'),
 ]

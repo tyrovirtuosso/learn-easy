@@ -1,0 +1,74 @@
+{% extends "_base.html" %}
+
+{% block content %}
+
+<form id="cardForm" method="post">
+    {% csrf_token %}
+    {{ card_form.as_p }}
+    <button type="submit">Create Card</button>
+</form>
+
+<div id="validation-errors-card" style="color: red;"></div>
+
+
+<form id="deckForm" method="post">
+    {% csrf_token %}
+    {{ deck_form.as_p }}
+    <button type="submit">Create Deck</button>
+</form>
+
+<div id="validation-errors-deck" style="color: red;"></div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#deckForm').on('submit', function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: "{% url 'cards:create_deck' %}",
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function(data) {
+                    if (data.deck_id) {
+                        $('#validation-errors-deck').html(''); // Clear the #validation-errors div
+                        $('#id_decks').append(new Option(data.deck_name, data.deck_id, true, true));
+                    } else if (data.error) {
+                        var errorMessage = JSON.parse(data.error)['deck_name'][0].message;
+                        $('#validation-errors-deck').html(errorMessage);
+                    } else {
+                        $('#validation-errors-deck').html(''); // Clear the #validation-errors div
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('#cardForm').on('submit', function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: "{% url 'cards:create_card' %}",
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function(data) {
+                    if (data.card_id) {
+                        $('#validation-errors-card').html(''); // Clear the #validation-errors div
+                        $('#id_cards').append(new Option(data.card_name, data.card_id, true, true));
+                    } else if (data.error) {
+                        var errors = JSON.parse(data.error);
+                        var errorMessage = '';
+                        for (var error in errors) {
+                            errorMessage += errors[error][0].message + '<br>';
+                        }
+                        $('#validation-errors-card').html(errorMessage);
+                    } else {
+                        $('#validation-errors-card').html(''); // Clear the #validation-errors div
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

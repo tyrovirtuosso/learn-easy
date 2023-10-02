@@ -1,20 +1,22 @@
-{% extends "_base.html" %}
+{% extends '_base.html' %}
 
 {% block content %}
-<h2>Review: {{ card.card_name }}</h2>
+
+<h2>{{ deck.deck_name }}</h2>
+<h3>{{ card.card_name }}</h3>
 <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Submit</button>
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Submit</button>
 </form>
-{% if outcome and feedback %}
-    <p>Outcome: {{ outcome }}</p>
-    <p>Feedback: {{ feedback }}</p>
+{% if feedback %}
+  <p>{{ feedback }}</p>
+  <p>{{ outcome }}</p>
+  <a href="{% url 'decks:review' deck.id %}">Next Card</a>
+{% elif answer_submitted %}
+  <p>Checking answer...</p>
 {% endif %}
-{% if show_next_button %}
-    <a href=" {% url 'decks:review' deck_id %} ">Next</a>
-{% else %}
-    <p>This is the Last Card for review.</p>
-{% endif %}
-<a href="{% url 'decks:deck_list' %}">Back to Deck List</a>
+
 {% endblock %}
+
+

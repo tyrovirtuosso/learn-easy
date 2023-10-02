@@ -7,6 +7,6 @@ class DeckForm(forms.ModelForm):
         model = Deck
         fields = ['deck_name']
         
-class ReviewForm(forms.Form):
-    card = forms.ModelChoiceField(queryset=Card.objects.all(), widget=forms.HiddenInput())
+class AnswerForm(forms.Form):
     answer = forms.CharField()
+        

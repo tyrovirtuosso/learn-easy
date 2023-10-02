@@ -1,13 +1,14 @@
 from django.shortcuts import render, HttpResponseRedirect
 from .models import Deck
 from cards.models import Card, Review
-from .forms import DeckForm, ReviewForm
+from .forms import DeckForm, AnswerForm
 from django.contrib.auth.decorators import login_required 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.urls import reverse
 from django.views import View
 from django.contrib import messages
+from django import forms
 
 
 @login_required
@@ -70,56 +71,43 @@ def remove_card_from_deck(request, deck_id, card_pk):
             
     return redirect('decks:deck_detail', deck_id=deck_id)
 
+def check_answer(answer):
+    return True
 
-class ReviewView(View):
-    def get(self, request, deck_id):
-        deck = Deck.objects.get(id=deck_id)
-        cards = deck.get_cards_for_revision()
-        if cards:
-            card = cards.first()
-            form = ReviewForm(initial={'card': card.id})
-            # Check if there are any cards left for review
-            show_next_button = cards.count() > 1
-            return render(request, 'decks/review.html', {'form': form, 'card': card, 'deck_id': deck_id, 'show_next_button': show_next_button})
+
+def review_deck(request, deck_id):
+    deck = Deck.objects.get(id=deck_id)
+    cards = deck.get_cards_for_revision()
+    if cards:
+        card = cards[0]
+        answer_submitted = False
+        feedback = None
+        outcome = None
+        if request.method == 'POST':
+            form = AnswerForm(request.POST)
+            if form.is_valid():
+                answer = form.cleaned_data.get('answer')
+                # outcome, feedback = card.check_answer(answer)
+                outcome, feedback = check_answer(answer), 'Sample Feedback'
+                reviews = Review.objects.filter(card=card)
+                
+                if reviews.count() == 1:
+                    review = reviews.first()
+                else:
+                    review = Review(card=card)
+
+                review.update_review(outcome)
+                answer_submitted = True
         else:
-            messages.info(request, 'No more cards to review.')
-            return redirect(reverse('decks:deck_list'))
-
-    def post(self, request, deck_id):
-        form = ReviewForm(request.POST)
-        if form.is_valid():
-            card = Card.objects.get(id=form.cleaned_data['card'].id)
-            answer = form.cleaned_data['answer']
-            outcome, feedback = True, 'sample feedback'
-            
-            reviews = Review.objects.filter(card=card)
-            if reviews.count() == 1:
-                review = reviews.first()
-            else:
-                review = Review(card=card)
-            
-            review.update_review(outcome, True)
-            
-            # Get the deck again and check if there are any cards left for review
-            deck = Deck.objects.get(id=deck_id)
-            cards = deck.get_cards_for_revision()
-            show_next_button = cards.count() > 0
-
-            context = {
-                'form': form,
-                'card': card,
-                'outcome': outcome,
-                'feedback': feedback,
-                'show_next_button': show_next_button,
-                'deck_id': deck_id,
-            }
-            return render(request, 'decks/review.html', context)
-
+            form = AnswerForm()
+        return render(request, 'decks/review.html', {'deck': deck, 'card': card, 'feedback': feedback, 'form': form, 'outcome':outcome, 'answer_submitted': answer_submitted})
+    else:
+        return redirect('decks:deck_list')
 
 
 # show next review time, level for card
 # set the question, feedback and answer checking API
-
+# be able to skip card in review
 # card_create page auto refresh
 # django.db.utils.OperationalError: database is locked error handling
 # what to do when you click review button and theres nothing to review

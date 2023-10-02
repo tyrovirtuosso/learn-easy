@@ -36,7 +36,6 @@
         {% endif %}
 
         {{ form.card_name.label_tag }}: {{ form.card_name }}
-        {% comment %} {{ form.as_p }} {% endcomment %}
         <button type="submit">Save</button>
     </form>
     <a href="{% url 'cards:card_list' %}">Back to Card List</a>

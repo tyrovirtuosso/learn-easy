@@ -1,46 +1,67 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Card, Tag
 from decks.models import Deck
-from .forms import CardForm, CardDeckCreationForm, AddCardToDeckForm, RemoveCardFromDeckForm
+from .forms import CardForm, AddCardToDeckForm, RemoveCardFromDeckForm, DeckForm
 from django.contrib.auth.decorators import login_required 
 from openai_API.api import OpenAI_API
 from django.contrib import messages
 from threading import Thread
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
 import openai
 from .utils import send_ws_message_to_user_group
 from django.db import transaction
+from django.db import IntegrityError
 
 ai = OpenAI_API()
 
 @login_required
 @transaction.atomic
-def create_card(request):    
-    storage = messages.get_messages(request)
-    storage.used = True
-    
-    card_deck_creation_form = CardDeckCreationForm(request.POST or None)
-    card_form = CardForm(request.POST or None, user=request.user)
+def create_card(request):
     if request.method == 'POST':
-        print(request.POST)
-        if 'deck_name' in request.POST:
-            create_deck(request, card_deck_creation_form)
-        else:   
-            create_card_helper(request, card_form)
-    
-    return render(request, 'cards/card_form.html', {'card_deck_creation_form': card_deck_creation_form, 'form': card_form})
+        card_form = CardForm(request.POST, user=request.user)
+        if card_form.is_valid():
+            try:                
+                card = card_form.save(commit=False)
+                card.user = request.user
+                card.save()
+                card.decks.add(Deck.objects.get(user=request.user, deck_name='default'))
+                selected_decks = card_form.cleaned_data['decks']
+                for deck in selected_decks:
+                    card.decks.add(deck)
+                card.save()
+                return redirect('cards:create_card')
+            except IntegrityError:
+                return JsonResponse({'error': 'A card with this name already exists.'})
+            except Exception as e:
+                return JsonResponse({'error': 'An error occurred while saving the card.'})
+        else:
+            return JsonResponse({'error': card_form.errors.as_json()})
+    else:
+        card_form = CardForm(user=request.user)
+        deck_form = DeckForm()
+    return render(request, 'cards/create_card.html', {'card_form': card_form, 'deck_form': deck_form})
 
 @login_required
-def create_deck(request, form):
-    if form.is_valid():
-        new_deck = form.save(commit=False)
-        new_deck.user = request.user
-        if Deck.objects.filter(deck_name=new_deck.deck_name, user=request.user).exists():
-            messages.error(request, "A deck with this deck_name already exists.")
+@transaction.atomic
+def create_deck(request):
+    if request.method == 'POST':
+        deck_form = DeckForm(request.POST, user=request.user)
+        if deck_form.is_valid():
+            try:
+                deck = deck_form.save(commit=False)
+                deck.user = request.user
+                deck.save()
+                return JsonResponse({'deck_id': deck.id, 'deck_name': deck.deck_name})
+            except IntegrityError:
+                return JsonResponse({'error': 'A deck with this name already exists.'})
+            except Exception as e:
+                return JsonResponse({'error': 'An error occurred while saving the deck.'})
         else:
-            new_deck.save()
-            messages.success(request, f"Deck '{new_deck.deck_name}' created successfully.")
-            return redirect('cards:create_card')
+            return JsonResponse({'error': deck_form.errors.as_json()})
+    else:
+        deck_form = DeckForm(user=request.user)
+    return JsonResponse({'error': 'Invalid request'})
+
 
 @login_required
 def create_card_helper(request, form):

@@ -38,7 +38,7 @@ class Card(models.Model):
     user_defined_tags = models.ManyToManyField(Tag, related_name="user_defined_cards", verbose_name="User Defined Tags")
     card_content_system_generated = models.TextField(verbose_name="System Generated Content")
     card_content_user_generated = models.TextField(verbose_name="User Generated Content")
-    notes = models.TextField(verbose_name="User Notes (Markdown Format)")
+    notes = models.TextField(verbose_name="User Notes")
     associated_resources = models.TextField(verbose_name="Associated Resources")
     pronunciation = models.FileField(upload_to='pronunciations/', null=True, blank=True, verbose_name="Pronunciation")
 
@@ -48,6 +48,10 @@ class Card(models.Model):
 
         # If there is a review, return its level, otherwise return None
         return latest_review.level if latest_review else None
+    
+    def save(self, *args, **kwargs):
+        self.card_name = self.card_name.lower()
+        super(Card, self).save(*args, **kwargs)
     
     def __str__(self):
         return self.card_name
@@ -83,7 +87,7 @@ class Review(models.Model):
     repetitions = models.IntegerField(default=0)
         
     
-    def update_review(self, outcome, ease_of_recall, priority_level=0):
+    def update_review(self, outcome, ease_of_recall=True, priority_level=0):
         self.total_attempts += 1
         self.last_review = timezone.now()
         self.ease_of_recall = ease_of_recall
@@ -122,6 +126,8 @@ class Review(models.Model):
                 self.level = Level.objects.get(level_number=5)
         
         self.next_review = self.last_review + timezone.timedelta(days=self.interval)
+        print(self.next_review)
+        print(self.level)
         self.save()
 
     def __str__(self):
