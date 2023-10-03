@@ -13,6 +13,10 @@ from django.db import transaction
 from django.db import IntegrityError
 from celery import shared_task
 from django.utils import timezone
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from django.urls import reverse
+
 
 ai = OpenAI_API()
 
@@ -31,8 +35,9 @@ def create_card(request):
                 selected_decks = card_form.cleaned_data['decks']
                 for deck in selected_decks:
                     card.decks.add(deck)
-                card.save()
-                print("hello")
+                card.save()                                
+                
+                print("hello1")
                 # get_corrected_name.delay(card.id)
                 get_system_defined_tags.delay(card.id)
                 task = get_card_content_system_generated.apply_async(args=[card.id], link=create_review.s(card.id), link_error=handle_error.s())
@@ -84,12 +89,25 @@ def get_card_content_system_generated(card_id):
     meaning = "Sample Meaning"
     card.card_content_system_generated = meaning
     card.save()
+    
+    # sending refresh signal via websocket for updating card_list page
+    channel_layer = get_channel_layer()    
+    async_to_sync(channel_layer.group_send)(
+        'cards',
+        {
+            'type': 'card.update',
+            'event': 'New Card',
+            'card_id': card.id
+        }
+    )
+            
 
 @shared_task
 def get_system_defined_tags(card_id):
     card = Card.objects.get(id=card_id)
     print(f"in get_system_defined_tags for {card.card_name}")
-    system_defined_tags = ai.get_category(card.card_name)
+    # system_defined_tags = ai.get_category(card.card_name)
+    system_defined_tags = ['TEST1', 'TEST2']
     card.system_defined_tags.clear()
                 
     for tag_name in system_defined_tags:            

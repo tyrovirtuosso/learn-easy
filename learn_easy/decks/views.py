@@ -120,13 +120,3 @@ def review_deck(request, deck_id):
 
 
 
-# adding multiple cards quickly causing error in celery
-# last review card next button
-# show next review time, level for card
-# set the question, feedback and answer checking API
-# be able to skip card in review
-# card_create page auto refresh
-# django.db.utils.OperationalError: database is locked error handling
-# what to do when you click review button and theres nothing to review
-# notify review is ready in decks list
-# error while creating tag, please try again option: SyntaxError: unterminated string literal (detected at line 1)
