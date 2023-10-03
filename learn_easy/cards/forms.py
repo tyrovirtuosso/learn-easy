@@ -9,11 +9,10 @@ from django.core.exceptions import ValidationError
 class CardForm(forms.ModelForm):
     decks = forms.ModelMultipleChoiceField(queryset=Deck.objects.none(), required=False)
     card_content_user_generated = forms.CharField(required=False)
-    notes = forms.CharField(required=False)
 
     class Meta:
         model = Card
-        exclude = ['user', "system_defined_tags", "user_defined_tags", "card_content_system_generated", "associated_resources", "pronunciation"]
+        exclude = ['user', "system_defined_tags", "user_defined_tags", "card_content_system_generated", "associated_resources", "pronunciation", "notes"]
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
