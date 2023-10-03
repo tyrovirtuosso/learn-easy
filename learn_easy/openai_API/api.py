@@ -74,20 +74,30 @@ class OpenAI_API:
 
         return chat_response_list
     
-    def get_question(self):
+    def get_question(self, word, card_content_user_generated):
+        
         messages = []
-        word = 'Turpitude'
+        system_content = (
+            "I want you to be an vocabulary master and a general teacher for everything.\n" 
+            "I want you to give a challenging but manageable question to check\n"
+            "if the user knows the meaning of the given word, topic or whatever that the user presents as input.\n"
+            "There should only be the question in the output, nothing else." 
+        )
+        
         system_msg = {
             "role": "system",
-            "content": "I want you to be an vocabulary master and a general teacher for everything. I want you to give a challenging question to check if the user knows the meaning of the word, topic, popular figure, place or whatever that the user presents as input. There should only be the question in the output, nothing else."
-            }
-        user_msg = {"role": "user", "content": f"The Word/Topic is: {word}"}
+            "content": system_content,
+        }
+        
+        user_content = f"The Word/Topic is: {word}. Here is some additional information that you can use if you wish to: {card_content_user_generated}"
+        user_msg = {"role": "user", "content": user_content}
         
         messages.append(system_msg)
         messages.append(user_msg)
         
-        chat_response = self.use_model(messages, model="gpt-3.5-turbo", temperature=1.3)
-        print(chat_response)
+        chat_response = self.use_model(messages, model="gpt-4", temperature=1.3)
+        print(f"response: {chat_response}")
+        return chat_response
         
     def check_answer(self):
         messages = []

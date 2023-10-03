@@ -81,12 +81,13 @@ class Review(models.Model):
     ]
     priority_level = models.IntegerField(default=0, choices=PRIORITY_CHOICES, verbose_name="Priority Level")
     level = models.ForeignKey(Level, on_delete=models.CASCADE, verbose_name="Level ID",  null=True)
-    
     ease_factor = models.FloatField(default=2.5)
     interval = models.IntegerField(default=1)
     repetitions = models.IntegerField(default=0)
-        
+    question = models.TextField(blank=True, null=True, verbose_name="Question")
+    answer = models.TextField(blank=True, null=True, verbose_name="Answer")
     
+        
     def update_review(self, outcome, ease_of_recall=True, priority_level=0):
         self.total_attempts += 1
         self.last_review = timezone.now()

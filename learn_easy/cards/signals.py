@@ -17,12 +17,15 @@ def create_default_deck(sender, instance, created, **kwargs):
     if created:
         Deck.objects.create(deck_name='default', user=instance)
 
-@receiver(post_save, sender=Card)
-def create_review(sender, instance, created, **kwargs):
-    if created:
-        Review.objects.create(
-            card=instance, 
-            next_review=timezone.now(),
-            level= Level.objects.get(level_number=1)
-        )
+# @receiver(post_save, sender=Card)
+# def create_review(sender, instance, created, **kwargs):
+#     print(f"creating review for {instance}")
+#     print(instance.card_name)
+#     print(instance.card_content_system_generated)
+#     if created:
+#         Review.objects.create(
+#             card=instance, 
+#             next_review=timezone.now(),
+#             level= Level.objects.get(level_number=1)
+#         )
         

@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Card, Tag
+from .models import Card, Tag, Review, Level
 from decks.models import Deck
 from .forms import CardForm, AddCardToDeckForm, RemoveCardFromDeckForm, DeckForm
 from django.contrib.auth.decorators import login_required 
@@ -11,9 +11,12 @@ import openai
 from .utils import send_ws_message_to_user_group
 from django.db import transaction
 from django.db import IntegrityError
+from celery import shared_task
+from django.utils import timezone
 
 ai = OpenAI_API()
 
+    
 @login_required
 @transaction.atomic
 def create_card(request):
@@ -29,6 +32,12 @@ def create_card(request):
                 for deck in selected_decks:
                     card.decks.add(deck)
                 card.save()
+                print("hello")
+                # get_corrected_name.delay(card.id)
+                get_system_defined_tags.delay(card.id)
+                task = get_card_content_system_generated.apply_async(args=[card.id], link=create_review.s(card.id), link_error=handle_error.s())
+                # get_card_content_system_generated.delay(card.id)
+                print("hello2")
                 return redirect('cards:create_card')
             except IntegrityError:
                 return JsonResponse({'error': 'A card with this name already exists.'})
@@ -40,6 +49,54 @@ def create_card(request):
         card_form = CardForm(user=request.user)
         deck_form = DeckForm()
     return render(request, 'cards/create_card.html', {'card_form': card_form, 'deck_form': deck_form})
+
+@shared_task
+def handle_error(uuid):
+    print(f"Task {uuid} failed")
+
+@shared_task
+def create_review(result, card_id):
+    card = Card.objects.get(id=card_id)
+    print(f"creating review for {card}")
+    question = ai.get_question(card.card_name, card.card_content_user_generated)
+    print(question)
+    Review.objects.create(
+        card=card, 
+        next_review=timezone.now(),
+        level= Level.objects.get(level_number=1),
+        question=question
+    )
+
+@shared_task
+def get_corrected_name(card_id):
+    card = Card.objects.get(id=card_id)
+    print(f"in get_corrected_name for {card.card_name}")
+    corrected_card_name = ai.spelling_corrector([card.card_name])[0]
+    card.card_name = corrected_card_name
+    card.save()
+
+@shared_task
+def get_card_content_system_generated(card_id):
+    card = Card.objects.get(id=card_id)
+    print(f"in get_card_content_system_generated for {card.card_name}")
+    meaning = ai.get_meaning(card.card_name)
+    card.card_content_system_generated = meaning
+    card.save()
+
+@shared_task
+def get_system_defined_tags(card_id):
+    card = Card.objects.get(id=card_id)
+    print(f"in get_system_defined_tags for {card.card_name}")
+    system_defined_tags = ai.get_category(card.card_name)
+    card.system_defined_tags.clear()
+                
+    for tag_name in system_defined_tags:            
+        tag_name = tag_name.upper()
+        tag, created = Tag.objects.get_or_create(tag_name=tag_name)  
+        if created:
+            tag.save()
+        card.system_defined_tags.add(tag)
+    card.save()
 
 @login_required
 @transaction.atomic
