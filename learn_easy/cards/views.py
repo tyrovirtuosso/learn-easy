@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Card, Tag, Review, Level
 from decks.models import Deck
-from .forms import CardForm, AddCardToDeckForm, RemoveCardFromDeckForm, DeckForm
+from .forms import CardForm, AddCardToDeckForm, RemoveCardFromDeckForm, DeckForm, CardEditForm
 from django.contrib.auth.decorators import login_required 
 from openai_API.api import OpenAI_API
 from django.contrib import messages
@@ -199,11 +199,49 @@ def card_detail(request, pk):
     
     add_form = AddCardToDeckForm()
     add_form.fields['deck'].queryset = Deck.objects.exclude(cards=card)
-    
     remove_form = RemoveCardFromDeckForm(user=request.user)
     remove_form.fields['deck'].queryset = card.decks.exclude(deck_name='default')
-    
     return render(request, 'cards/card_detail.html', {'card': card, 'add_form': add_form, 'remove_form': remove_form})
+
+@login_required
+def edit_card(request, pk):
+    card = get_object_or_404(Card, pk=pk)
+
+    # Check if the current user has permission to edit this card
+    if request.user != card.user and not request.user.is_superuser:
+        return HttpResponseForbidden("You are not allowed to edit this card.")
+
+    if request.method == 'POST':
+        # Handle form submission to update the card fields
+        form = CardEditForm(request.POST, instance=card)
+        form.fields['user_defined_tags'].queryset = card.user_defined_tags.all()
+        
+        # Handle adding new user-defined tags
+        new_tags = request.POST.get('new_user_defined_tags')
+        if new_tags:
+            new_tag_names = [tag.strip() for tag in new_tags.split(',')]
+            for tag_name in new_tag_names:
+                if tag_name:
+                    # Create new tags if they don't exist
+                    tag, created = Tag.objects.get_or_create(tag_name=tag_name)
+                    if created:
+                        card.user_defined_tags.add(tag)
+                    else:
+                        try:
+                            card.user_defined_tags.get(tag_name=tag_name)
+                        except Tag.DoesNotExist:
+                            card.user_defined_tags.add(tag)
+                            
+        if form.is_valid():
+            form.save()
+            return redirect('cards:card_detail', pk=pk)  # Redirect to the card detail page after editing
+    else:
+        # Display the form for editing
+        form = CardEditForm(instance=card)
+        form.fields['user_defined_tags'].queryset = card.user_defined_tags.all()
+
+    return render(request, 'cards/edit_card.html', {'card': card, 'form': form})
+
 
 @login_required
 def card_list(request):
