@@ -168,6 +168,7 @@ learn_easy/items/static/items/draft.js
 output.txt
 draft.py
 draft.txt
+to-do.txt
 
 # Migration files
 learn_easy/decks/migrations/

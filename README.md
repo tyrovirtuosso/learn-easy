@@ -12,3 +12,5 @@ python manage.py migrate
 python manage.py collectstatic
 python manage.py shell
 python manage.py runscript query -v2
+redis-server
+celery -A learn_easy worker --loglevel=info
