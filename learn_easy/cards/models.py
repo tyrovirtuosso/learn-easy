@@ -72,7 +72,7 @@ class Review(models.Model):
     outcome = models.BooleanField(default=False, choices=OUTCOME_CHOICES, verbose_name="Outcome (Correct or Wrong)")
     total_attempts = models.IntegerField(default=0, verbose_name="Total Attempts")
     total_correct = models.IntegerField(default=0, verbose_name="Total Correct")
-    # completion_time = models.IntegerField(verbose_name="Completion Time (minutes)")
+    completion_time = models.FloatField(null=True, verbose_name="Completion Time (minutes)")
     last_review = models.DateTimeField(null=True, verbose_name="Last Review", default=None)
     next_review = models.DateTimeField(null=True, verbose_name="Next Review", default=None)
     PRIORITY_CHOICES = [

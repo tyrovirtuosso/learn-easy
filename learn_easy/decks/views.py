@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.views import View
 from django.contrib import messages
 from django import forms
-
+import time
 
 @login_required
 def create_deck(request):
@@ -71,10 +71,11 @@ def remove_card_from_deck(request, deck_id, card_pk):
             
     return redirect('decks:deck_detail', deck_id=deck_id)
 
+
 def check_answer(answer):
     return True
 
-
+@login_required
 def review_deck(request, deck_id):
     deck = Deck.objects.get(id=deck_id)
     cards = deck.get_cards_for_revision()
@@ -83,6 +84,7 @@ def review_deck(request, deck_id):
         answer_submitted = False
         feedback = None
         outcome = None
+        completion_time = None
         if request.method == 'POST':
             form = AnswerForm(request.POST)
             if form.is_valid():
@@ -90,25 +92,41 @@ def review_deck(request, deck_id):
                 # outcome, feedback = card.check_answer(answer)
                 outcome, feedback = check_answer(answer), 'Sample Feedback'
                 reviews = Review.objects.filter(card=card)
-                
+            
                 if reviews.count() == 1:
                     review = reviews.first()
                 else:
                     review = Review(card=card)
 
+                completion_time = float(request.POST.get('completion_time'))
+                print(f"completion_time:{completion_time}")
+                
                 review.update_review(outcome)
+                review.completion_time = completion_time
                 answer_submitted = True
         else:
             form = AnswerForm()
-        return render(request, 'decks/review.html', {'deck': deck, 'card': card, 'feedback': feedback, 'form': form, 'outcome':outcome, 'answer_submitted': answer_submitted})
+        return render(request, 'decks/review.html', {
+            'deck': deck,
+            'card': card,
+            'feedback': feedback,
+            'form': form,
+            'outcome':outcome,
+            'answer_submitted': answer_submitted,
+            'completion_time': completion_time
+            })
     else:
         return redirect('decks:deck_list')
 
 
+
+# adding multiple cards quickly causing error in celery
+# last review card next button
 # show next review time, level for card
 # set the question, feedback and answer checking API
 # be able to skip card in review
 # card_create page auto refresh
 # django.db.utils.OperationalError: database is locked error handling
 # what to do when you click review button and theres nothing to review
-
+# notify review is ready in decks list
+# error while creating tag, please try again option: SyntaxError: unterminated string literal (detected at line 1)

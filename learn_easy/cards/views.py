@@ -58,7 +58,8 @@ def handle_error(uuid):
 def create_review(result, card_id):
     card = Card.objects.get(id=card_id)
     print(f"creating review for {card}")
-    question = ai.get_question(card.card_name, card.card_content_user_generated)
+    # question = ai.get_question(card.card_name, card.card_content_user_generated)
+    question = "sample quesiton"
     print(question)
     Review.objects.create(
         card=card, 
@@ -79,7 +80,8 @@ def get_corrected_name(card_id):
 def get_card_content_system_generated(card_id):
     card = Card.objects.get(id=card_id)
     print(f"in get_card_content_system_generated for {card.card_name}")
-    meaning = ai.get_meaning(card.card_name)
+    # meaning = ai.get_meaning(card.card_name)
+    meaning = "Sample Meaning"
     card.card_content_system_generated = meaning
     card.save()
 

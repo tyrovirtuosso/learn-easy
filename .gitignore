@@ -174,3 +174,4 @@ learn_easy/decks/migrations/
 learn_easy/cards/migrations/
 learn_easy/dashboard/migrations/
 learn_easy/usersApp/migrations/
+learn_easy/dump.rdb
