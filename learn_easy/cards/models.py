@@ -6,6 +6,8 @@ from django.utils import timezone
 # Tags Table
 class Tag(models.Model):
     tag_name = models.CharField(max_length=255, unique=True, verbose_name="Tag Name")
+    group_name = models.CharField(max_length=255, verbose_name="Tag Group", blank=True, null=True, unique=True)
+
 
     def save(self, *args, **kwargs):
         # Ensure that tag_name is always stored in uppercase
@@ -33,7 +35,8 @@ class Level(models.Model):
 class Card(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name="Owner of the Card")
     card_name = models.CharField(max_length=255, verbose_name="Card Name")
-    decks = models.ManyToManyField('decks.Deck', related_name='cards')
+    decks = models.ManyToManyField('decks.Deck', related_name='cards_deck')
+    smart_decks = models.ManyToManyField('decks.SmartDeck', related_name='cards_smartdeck')
     system_defined_tags = models.ManyToManyField(Tag, related_name="system_defined_cards", verbose_name="System Defined Tags")
     user_defined_tags = models.ManyToManyField(Tag, related_name="user_defined_cards", verbose_name="User Defined Tags")
     card_content_system_generated = models.TextField(verbose_name="System Generated Content")
@@ -42,6 +45,9 @@ class Card(models.Model):
     associated_resources = models.TextField(verbose_name="Associated Resources")
     pronunciation = models.FileField(upload_to='pronunciations/', null=True, blank=True, verbose_name="Pronunciation")
 
+    class Meta:
+        unique_together = ('user', 'card_name')
+        
     def current_level(self):
         # Get the most recent review of this card
         latest_review = self.review_set.order_by('-last_review').first()
