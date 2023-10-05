@@ -117,13 +117,23 @@ class OpenAI_API:
     def get_meaning(self, word):
         messages = []
         
-        content = (
-            "Generate a clear and concise explanation for the given word or topic using simple language and first principles.\n"
-            "Provide real-life examples to illustrate your explanation.\n"
-            "The output should be in markdown format so that I can use it on the webpage.\n"
-            "There should be no additional content in the output, only the explanation in the the markdown format.\n"
-            "Mark important points(if any) in bold markdown to highlight its importance."
-        )
+        content = """
+            Generate a clear and concise explanation for the given word or topic using simple language and from a first principles perspective.
+            Provide real-life examples to illustrate your explanation.
+            The output should be in markdown format so that I can use it on the webpage.
+            There should be no additional content in the output, only the explanation in the the markdown format.
+            Mark important points(if any) in bold markdown to highlight its importance.
+            Also provide tricks to help remember the topic or word using association and etymology.
+        """
+        
+        
+        # (
+        #     "Generate a clear and concise explanation for the given word or topic using simple language and first principles.\n"
+        #     "Provide real-life examples to illustrate your explanation.\n"
+        #     "The output should be in markdown format so that I can use it on the webpage.\n"
+        #     "There should be no additional content in the output, only the explanation in the the markdown format.\n"
+        #     "Mark important points(if any) in bold markdown to highlight its importance."
+        # )
 
                     
         system_msg = {
