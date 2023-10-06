@@ -1,9 +1,19 @@
 from celery import shared_task
 from .models import Card, Tag
 from openai_API.api import OpenAI_API
+from django.db.models import Q
 
 
 ai = OpenAI_API()
+
+
+@shared_task
+def check_and_update_empty_cards():
+    print("in check_and_update_empty_cards")
+    empty_cards = Card.objects.filter(Q(card_content_system_generated__isnull=True) | Q(card_content_system_generated=''))
+    print(f"empty_cards: {empty_cards}")
+    for card in empty_cards:
+        update_card_meaning.delay(card.pk)
 
 @shared_task
 def update_card_meaning(pk):

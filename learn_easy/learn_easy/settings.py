@@ -2,6 +2,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 import logging
+from celery.schedules import crontab
+
 
 load_dotenv()
 
@@ -45,7 +47,8 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.github", 
     "allauth.socialaccount.providers.google",
     "allauth.socialaccount.providers.twitter_oauth2",
-    
+    # Celery Beat for cronjobs
+    "django_celery_beat",
 ]
 
 MIDDLEWARE = [
@@ -226,3 +229,11 @@ LOGGING = {
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
+
+
+CELERY_BEAT_SCHEDULE = {
+    "check_and_update_empty_cards": {
+        "task": "cards.tasks.check_and_update_empty_cards",
+        "schedule": crontab(minute="*/1"),
+    },
+}
