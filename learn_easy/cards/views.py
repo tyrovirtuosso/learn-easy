@@ -95,11 +95,9 @@ def create_card(request):
 #         deck_form = DeckForm(user=request.user)
 #     return render(request, 'cards/create_card.html', {'card_form': card_form, 'deck_form': deck_form})
 
-@shared_task
 def handle_error(uuid):
     print(f"Task {uuid} failed")
 
-@shared_task(autoretry_for=(OperationalError,), retry_backoff=True)
 @transaction.atomic
 def create_review(result, card_id):
     card = Card.objects.get(id=card_id)
@@ -113,7 +111,6 @@ def create_review(result, card_id):
     )
     print(f"Created review for {card}")
 
-@shared_task
 @transaction.atomic
 def get_corrected_name(card_id):
     card = Card.objects.get(id=card_id)
@@ -122,7 +119,7 @@ def get_corrected_name(card_id):
     card.card_name = corrected_card_name
     card.save()
 
-@shared_task(autoretry_for=(OperationalError,), retry_backoff=True)
+# @shared_task(autoretry_for=(OperationalError,), retry_backoff=True)
 @transaction.atomic
 def get_card_content_system_generated(card_id):
     card = Card.objects.select_for_update().get(id=card_id)
@@ -145,7 +142,6 @@ def get_card_content_system_generated(card_id):
     
             
 
-@shared_task(autoretry_for=(OperationalError,), retry_backoff=True)
 @transaction.atomic
 def get_system_defined_tags(card_id):
     card = Card.objects.get(id=card_id)
