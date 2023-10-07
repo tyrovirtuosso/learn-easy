@@ -171,6 +171,8 @@ draft.txt
 to-do.txt
 learn_easy/cards/scripts/bulk_card_upload.py
 learn_easy/celerybeat-schedule.db
+node_modules/
+package-lock.json
 
 # Migration files
 learn_easy/decks/migrations/
