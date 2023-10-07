@@ -6,6 +6,7 @@ uvicorn learn_easy.asgi:application --port 8000 --workers 4 --log-level debug --
 or
 python manage.py runserver
 
+# Commonly Used for setup
 python manage.py makemigrations cards dashboard decks usersApp
 python manage.py makemigrations
 python manage.py migrate
