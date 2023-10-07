@@ -7,13 +7,23 @@
     {% load custom_filters %}
     {% load markdown_extras %}
     <h1>Card Detail</h1>
+
     <div class="card-detail">
         <h2>{{ card.card_name }}</h2>
         
-        <div class="categories">
-            <h3>Categories:</h3>
+        <div class="system-categories">
+            <h3>System Categories:</h3>
             <ul>
                 {% for tag in card.system_defined_tags.all %}
+                    <li>{{ tag.tag_name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="user-categories">
+            <h3>User Categories:</h3>
+            <ul>
+                {% for tag in card.user_defined_tags.all %}
                     <li>{{ tag.tag_name }}</li>
                 {% endfor %}
             </ul>
@@ -29,12 +39,29 @@
         </div>
         
         
-        <div class="card-content">
-            <h3>Card Content:</h3>
+        <div class="card-content-system">
+            <h3>Card Content System Generated:</h3>
             <div class="markdown-content">
                 <p>{{ card.card_content_system_generated | markdown | safe }}</p>
             </div>
         </div>
+
+        <div class="card-content-user">
+            <h3>Card Content User Generated:</h3>
+            <div class="markdown-content">
+                <p>{{ card.card_content_user_generated | markdown | safe }}</p>
+            </div>
+        </div>
+
+        <div class="card-content-notes">
+            <h3>Notes:</h3>
+            <p>{{ card.notes }}</p>
+        </div>
+
+        <a href="{% url 'cards:edit_card' card.pk %}">Edit</a>
+
+
+
     </div>
 
 

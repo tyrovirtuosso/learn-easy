@@ -1,17 +1,13 @@
 from django.db.models.signals import post_save, pre_save, post_migrate
 from django.dispatch import receiver
 from .scripts.add_levels import add_levels
+from django.utils import timezone
 
 from decks.models import Deck
-from cards.models import Card, Level
+from cards.models import Card, Level, Review
 from usersApp.models import CustomUser
+from .tasks import update_card_meaning, update_card_tags
 
-@receiver(pre_save, sender=Card)
-def set_default_level(sender, instance, **kwargs):
-    if instance.level_id is None:
-        # Get the Level instance with level_number equal to 1
-        level_one = Level.objects.get(level_number=1)
-        instance.level = level_one
 
 @receiver(post_migrate)
 def create_levels(sender, **kwargs):
@@ -21,3 +17,24 @@ def create_levels(sender, **kwargs):
 def create_default_deck(sender, instance, created, **kwargs):
     if created:
         Deck.objects.create(deck_name='default', user=instance)
+        
+@receiver(post_save, sender=Card)
+def create(sender, instance, created, **kwargs):
+    if created:
+        print(f"in signal for {instance.card_name}")
+        update_card_meaning.delay(instance.pk)
+        update_card_tags.delay(instance.pk)
+        
+
+# @receiver(post_save, sender=Card)
+# def create_review(sender, instance, created, **kwargs):
+#     print(f"creating review for {instance}")
+#     print(instance.card_name)
+#     print(instance.card_content_system_generated)
+#     if created:
+#         Review.objects.create(
+#             card=instance, 
+#             next_review=timezone.now(),
+#             level= Level.objects.get(level_number=1)
+#         )
+        

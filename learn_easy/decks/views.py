@@ -1,11 +1,15 @@
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponseRedirect
 from .models import Deck
-from cards.models import Card
-from .forms import DeckForm
+from cards.models import Card, Review
+from .forms import DeckForm, AnswerForm
 from django.contrib.auth.decorators import login_required 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
-
+from django.urls import reverse
+from django.views import View
+from django.contrib import messages
+from django import forms
+import time
 
 @login_required
 def create_deck(request):
@@ -24,12 +28,12 @@ def create_deck(request):
     else:
         form = DeckForm()
 
-    return render(request, 'deck/create_deck.html', {'form': form})
+    return render(request, 'decks/create_deck.html', {'form': form})
 
 @login_required
 def deck_list(request):
     decks = Deck.objects.filter(user=request.user)
-    return render(request, 'deck/deck_list.html', {'decks': decks})
+    return render(request, 'decks/deck_list.html', {'decks': decks})
 
 @login_required
 def deck_detail(request, deck_id):
@@ -37,10 +41,10 @@ def deck_detail(request, deck_id):
     cards = deck.cards.all()  # related_name='cards' in Cards to decks ManyToManyField
     available_cards = Card.objects.exclude(decks=deck)
     is_default_deck = deck.deck_name == 'default'
-    return render(request, 'deck/deck_detail.html', {'deck': deck, 'cards': cards, 'available_cards': available_cards, 'is_default_deck': is_default_deck})
+    return render(request, 'decks/deck_detail.html', {'deck': deck, 'cards': cards, 'available_cards': available_cards, 'is_default_deck': is_default_deck})
 
 
-# View to add a card to the deck
+@login_required
 def add_card_to_deck(request, deck_id):
     if request.method == 'POST':
         deck = get_object_or_404(Deck, id=deck_id)
@@ -49,7 +53,7 @@ def add_card_to_deck(request, deck_id):
         deck.cards.add(card)
     return redirect('decks:deck_detail', deck_id=deck_id)
 
-# View to remove a card from the deck
+@login_required
 def remove_card_from_deck(request, deck_id, card_pk):
     deck = get_object_or_404(Deck, pk=deck_id)
     card = get_object_or_404(Card, pk=card_pk)
@@ -66,3 +70,53 @@ def remove_card_from_deck(request, deck_id, card_pk):
             deck.cards.remove(card)
             
     return redirect('decks:deck_detail', deck_id=deck_id)
+
+
+def check_answer(answer):
+    return True
+
+@login_required
+def review_deck(request, deck_id):
+    deck = Deck.objects.get(id=deck_id)
+    cards = deck.get_cards_for_revision()
+    if cards:
+        card = cards[0]
+        answer_submitted = False
+        feedback = None
+        outcome = None
+        completion_time = None
+        if request.method == 'POST':
+            form = AnswerForm(request.POST)
+            if form.is_valid():
+                answer = form.cleaned_data.get('answer')
+                # outcome, feedback = card.check_answer(answer)
+                outcome, feedback = check_answer(answer), 'Sample Feedback'
+                reviews = Review.objects.filter(card=card)
+            
+                if reviews.count() == 1:
+                    review = reviews.first()
+                else:
+                    review = Review(card=card)
+
+                completion_time = float(request.POST.get('completion_time'))
+                print(f"completion_time:{completion_time}")
+                
+                review.update_review(outcome)
+                review.completion_time = completion_time
+                answer_submitted = True
+        else:
+            form = AnswerForm()
+        return render(request, 'decks/review.html', {
+            'deck': deck,
+            'card': card,
+            'feedback': feedback,
+            'form': form,
+            'outcome':outcome,
+            'answer_submitted': answer_submitted,
+            'completion_time': completion_time
+            })
+    else:
+        return redirect('decks:deck_list')
+
+
+

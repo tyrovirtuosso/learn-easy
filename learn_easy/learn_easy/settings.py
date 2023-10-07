@@ -2,6 +2,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 import logging
+from celery.schedules import crontab
+
 
 load_dotenv()
 
@@ -45,7 +47,8 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.github", 
     "allauth.socialaccount.providers.google",
     "allauth.socialaccount.providers.twitter_oauth2",
-    
+    # Celery Beat for cronjobs
+    "django_celery_beat",
 ]
 
 MIDDLEWARE = [
@@ -129,12 +132,29 @@ SOCIALACCOUNT_PROVIDERS = {
     
 }
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+
+# Connecting to Custom Serverless Cloud PostgreSQL DB
+HOST=os.environ.get('AWS_POSTGRE_HOST')
+USER=os.environ.get('AWS_POSTGRE_USERNAME')
+PASSWORD=os.environ.get('AWS_POSTGRE_PASSWORD')
+PORT=int(os.environ.get('AWS_POSTGRE_PORT'))
+DATABASE=os.environ.get('AWS_POSTGRE_DATABASE')
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': DATABASE,
+        'USER': USER,
+        'PASSWORD': PASSWORD,
+        'HOST': HOST,
+        'PORT': PORT,
+    }}
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -174,9 +194,17 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = 'email'
 LOGOUT_REDIRECT_URL = "home"
 
 
+# CHANNEL_LAYERS = {
+#     "default":{"BACKEND": "channels.layers.InMemoryChannelLayer"},
+# }
+
 CHANNEL_LAYERS = {
-    # 'default': {'BACKEND': 'channels_redis.core.RedisChannelLayer',},
-    "default":{"BACKEND": "channels.layers.InMemoryChannelLayer"},
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379, 1)],  # Use database 1
+        },
+    },
 }
 
 # django-extensions configuration
@@ -195,5 +223,17 @@ LOGGING = {
     'root': {
         'handlers': ['file'],
         'level': 'WARNING',
+    },
+}
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+
+
+CELERY_BEAT_SCHEDULE = {
+    "check_and_update_empty_cards": {
+        "task": "cards.tasks.check_and_update_empty_cards",
+        "schedule": crontab(minute="*/1"),
     },
 }

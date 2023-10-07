@@ -167,9 +167,17 @@ local-cdn
 learn_easy/items/static/items/draft.js
 output.txt
 draft.py
+draft.txt
+to-do.txt
+learn_easy/cards/scripts/bulk_card_upload.py
+learn_easy/celerybeat-schedule.db
+node_modules/
+package-lock.json
 
 # Migration files
 learn_easy/decks/migrations/
 learn_easy/cards/migrations/
 learn_easy/dashboard/migrations/
 learn_easy/usersApp/migrations/
+learn_easy/dump.rdb
+dump.rdb
