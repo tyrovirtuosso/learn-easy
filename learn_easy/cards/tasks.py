@@ -1,8 +1,7 @@
 from celery import shared_task
-from .models import Card, Tag
+from .models import Card, Tag, Review
 from openai_API.api import OpenAI_API
 from django.db.models import Q
-
 
 ai = OpenAI_API()
 
@@ -19,21 +18,23 @@ def check_and_update_empty_cards():
 def update_card_meaning(pk):
     card = Card.objects.get(pk=pk)    
     card_name = card.card_name
-    print(f"in update_card_meaning for {card_name}")
-    # meaning = "Sample Meaning"
     meaning = ai.get_meaning(card_name)
     card.card_content_system_generated = meaning
     card.save()
-    print(f"update_card_meaning done for {card_name}!")
+    print(f"update_card_meaning done for {card_name}! Now generating Question")
+    
+    # Generate the question based on the meaning
+    question = ai.get_question(card_name, meaning)
+    review = Review.objects.get(card=card)
+    review.question = question
+    review.save()
+    print(f"Question generated and review updated for {card_name}!")    
     
 @shared_task
 def update_card_tags(pk):    
     card = Card.objects.get(pk=pk)
     card_name = card.card_name
-    print(f"in update_card_tags for {card_name}")
-    # tag = ['TEST1', 'TEST2']
     tags = ai.get_category(card_name)
-    # card.system_defined_tags.clear()
     
     for tag_name in tags:            
         tag_name = tag_name.upper()

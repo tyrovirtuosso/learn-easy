@@ -21,20 +21,16 @@ def create_default_deck(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Card)
 def create(sender, instance, created, **kwargs):
     if created:
-        print(f"in signal for {instance.card_name}")
         update_card_meaning.delay(instance.pk)
         update_card_tags.delay(instance.pk)
         
 
-# @receiver(post_save, sender=Card)
-# def create_review(sender, instance, created, **kwargs):
-#     print(f"creating review for {instance}")
-#     print(instance.card_name)
-#     print(instance.card_content_system_generated)
-#     if created:
-#         Review.objects.create(
-#             card=instance, 
-#             next_review=timezone.now(),
-#             level= Level.objects.get(level_number=1)
-#         )
+@receiver(post_save, sender=Card)
+def create_review(sender, instance, created, **kwargs):
+    if created:
+        Review.objects.create(
+            card=instance, 
+            next_review=timezone.now(),
+            level= Level.objects.get(level_number=1)
+        )
         

@@ -154,23 +154,32 @@ class OpenAI_API:
         messages.append(user_msg)
         
         chat_response = self.use_model(messages, model="gpt-4", temperature=1.3)
-        print(f"response: {chat_response}")
         return chat_response
         
-    def check_answer(self):
+    def check_answer(self, question, answer):
         messages = []
-        question = "If a patient is treated in a holistic manner in healthcare, what aspect is emphasis given more - physical symptoms only or the entire physical, mental, social and psychological condition and wellness?"
         system_msg = {
             "role": "system",
-            "content": f"I want you to be an vocabulary master and a general teacher for everything. I want you to check whether the users answer to the following question is correct or not. If you think its correct, give the ouput as [1], otherwise give the output as [0]. In case the users answer is wrong and the output is 0, then after leaving a new line, give the reason why its wrong and the right answer to the question. Apart from what i specified, there shouldn't be anything else in the output. Heres the question:{question}"
-            }
-        answer = "Emphasis is given more to the conspicous symptoms"
+            "content": f"I want you to be an vocabulary master and a general teacher for everything. I want you to check whether the users answer to the following question is correct or not. If you think its correct, give the ouput as [1], otherwise give the output as [0]. In case the users answer is wrong and the output is 0, then after leaving a new line, give the reason why its wrong and the right answer to the question. In case the answer is right and the output is 1, then after leaving a new line, give some feedback. Apart from what i specified, there shouldn't be anything else in the output. Heres the question:{question}"            }
         user_msg = {"role": "user", "content": f"{answer}"}
         
         messages.append(system_msg)
         messages.append(user_msg)
         
         chat_response = self.use_model(messages, model="gpt-3.5-turbo", temperature=1.3)
+        response_lines = chat_response.strip().split('\n')
+        
+        outcome = False  
+        feedback = ""
+        
+        if response_lines and response_lines[0] == "[1]":
+            outcome = True
+        
+        feedback_lines = response_lines[1:]
+        feedback = "\n".join(feedback_lines).strip()
+
+        return outcome, str(feedback)
+        
     
     def get_meaning(self, word):
         messages = []

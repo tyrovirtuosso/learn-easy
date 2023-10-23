@@ -1,6 +1,6 @@
 from django.shortcuts import render, HttpResponseRedirect
 from .models import Deck
-from cards.models import Card, Review
+from cards.models import Card, Review, Level
 from .forms import DeckForm, AnswerForm
 from django.contrib.auth.decorators import login_required 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -10,6 +10,11 @@ from django.views import View
 from django.contrib import messages
 from django import forms
 import time
+from django.utils import timezone
+from openai_API.api import OpenAI_API
+
+ai = OpenAI_API()
+
 
 @login_required
 def create_deck(request):
@@ -38,7 +43,7 @@ def deck_list(request):
 @login_required
 def deck_detail(request, deck_id):
     deck = get_object_or_404(Deck, id=deck_id, user=request.user)  
-    cards = deck.cards.all()  # related_name='cards' in Cards to decks ManyToManyField
+    cards = deck.cards_deck.all()
     available_cards = Card.objects.exclude(decks=deck)
     is_default_deck = deck.deck_name == 'default'
     return render(request, 'decks/deck_detail.html', {'deck': deck, 'cards': cards, 'available_cards': available_cards, 'is_default_deck': is_default_deck})
@@ -50,7 +55,7 @@ def add_card_to_deck(request, deck_id):
         deck = get_object_or_404(Deck, id=deck_id)
         card_pk = request.POST.get('add_card')
         card = get_object_or_404(Card, pk=card_pk)
-        deck.cards.add(card)
+        deck.cards_deck.add(card)
     return redirect('decks:deck_detail', deck_id=deck_id)
 
 @login_required
@@ -75,6 +80,7 @@ def remove_card_from_deck(request, deck_id, card_pk):
 def check_answer(answer):
     return True
 
+# put priority level on card model rather than review model.
 @login_required
 def review_deck(request, deck_id):
     deck = Deck.objects.get(id=deck_id)
@@ -85,30 +91,28 @@ def review_deck(request, deck_id):
         feedback = None
         outcome = None
         completion_time = None
+        question = card.review_set.latest('next_review').question
         if request.method == 'POST':
             form = AnswerForm(request.POST)
             if form.is_valid():
+                latest_review = Review.objects.filter(card=card).latest('next_review')
+                question = latest_review.question
                 answer = form.cleaned_data.get('answer')
-                # outcome, feedback = card.check_answer(answer)
-                outcome, feedback = check_answer(answer), 'Sample Feedback'
-                reviews = Review.objects.filter(card=card)
-            
-                if reviews.count() == 1:
-                    review = reviews.first()
-                else:
-                    review = Review(card=card)
-
+                outcome, feedback = ai.check_answer(question, answer)
                 completion_time = float(request.POST.get('completion_time'))
-                print(f"completion_time:{completion_time}")
-                
-                review.update_review(outcome)
-                review.completion_time = completion_time
                 answer_submitted = True
+                ease_of_recall = form.cleaned_data.get('ease_of_recall')
+                
+                priority_level = False # Currently hardcoded, but ask user for input.
+                
+                latest_review.update_review(card, outcome, ease_of_recall, priority_level, completion_time)
+
         else:
             form = AnswerForm()
         return render(request, 'decks/review.html', {
             'deck': deck,
             'card': card,
+            'question': question,
             'feedback': feedback,
             'form': form,
             'outcome':outcome,

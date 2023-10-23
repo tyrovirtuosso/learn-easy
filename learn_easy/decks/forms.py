@@ -9,4 +9,5 @@ class DeckForm(forms.ModelForm):
         
 class AnswerForm(forms.Form):
     answer = forms.CharField()
+    ease_of_recall = forms.BooleanField(required=False, initial=False, widget=forms.HiddenInput())
         
