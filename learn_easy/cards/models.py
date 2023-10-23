@@ -8,7 +8,6 @@ class Tag(models.Model):
     tag_name = models.CharField(max_length=255, unique=True, verbose_name="Tag Name")
     group_name = models.CharField(max_length=255, verbose_name="Tag Group", blank=True, null=True, unique=True)
 
-
     def save(self, *args, **kwargs):
         # Ensure that tag_name is always stored in uppercase
         self.tag_name = self.tag_name.upper()
@@ -64,6 +63,7 @@ class Card(models.Model):
 
 
 # Review Table
+# Smart deck should be an option the user needs to click to perform or get updated(not automatic). There is a different section for smart and user defined
 class Review(models.Model):
     card = models.ForeignKey(Card, on_delete=models.CASCADE, verbose_name="Card")
     EASE_CHOICES = [
@@ -75,35 +75,31 @@ class Review(models.Model):
         (False, 'Wrong'),
         (True, 'Correct'),
     ]
-    outcome = models.BooleanField(default=False, choices=OUTCOME_CHOICES, verbose_name="Outcome (Correct or Wrong)")
-    total_attempts = models.IntegerField(default=0, verbose_name="Total Attempts")
-    total_correct = models.IntegerField(default=0, verbose_name="Total Correct")
+    outcome = models.BooleanField(default=False, choices=OUTCOME_CHOICES, verbose_name="Outcome (Correct or Incorrect Answer)")
+    status = models.BooleanField(default=False, verbose_name="Review Status (Completed or Not Completed)")
     completion_time = models.FloatField(null=True, verbose_name="Completion Time (minutes)")
-    last_review = models.DateTimeField(null=True, verbose_name="Last Review", default=None)
-    next_review = models.DateTimeField(null=True, verbose_name="Next Review", default=None)
-    PRIORITY_CHOICES = [
-        (0, 'No Priority'),
-        (1, 'Priority'),
-    ]
-    priority_level = models.IntegerField(default=0, choices=PRIORITY_CHOICES, verbose_name="Priority Level")
-    level = models.ForeignKey(Level, on_delete=models.CASCADE, verbose_name="Level ID",  null=True)
-    ease_factor = models.FloatField(default=2.5)
-    interval = models.IntegerField(default=1)
-    repetitions = models.IntegerField(default=0)
-    question = models.TextField(blank=True, null=True, verbose_name="Question")
-    answer = models.TextField(blank=True, null=True, verbose_name="Answer")
+    last_review = models.DateTimeField(null=True, default=None, verbose_name="Date and Time of Last Review")
+    next_review = models.DateTimeField(null=True, default=None, verbose_name="Date and Time of Next Review")
+    priority_level = models.BooleanField(default=False, verbose_name="Priority Level (1 for Priority, 0 for No Priority)")
+    level = models.ForeignKey(Level, on_delete=models.CASCADE, null=True, verbose_name="Associated Learning Level")
+    ease_factor = models.FloatField(default=2.5, verbose_name="Ease Factor (Used for Recall Calculation)")
+    interval = models.IntegerField(default=1, verbose_name="Review Interval (in Days)")
+    repetitions = models.IntegerField(default=0, verbose_name="Number of Successful Recall Attempts")
+    question = models.TextField(blank=True, null=True, verbose_name="Review Question")
+    answer = models.TextField(blank=True, null=True, verbose_name="Review Answer")
     
-        
-    def update_review(self, outcome, ease_of_recall=True, priority_level=0):
-        self.total_attempts += 1
+    # Review should be there only if question for review card is present    
+    def update_review(self, card, outcome, ease_of_recall, priority_level, completion_time):
+        print("updating review")
         self.last_review = timezone.now()
+        self.outcome = outcome
         self.ease_of_recall = ease_of_recall
         self.priority_level = priority_level
-        self.outcome = outcome
+        self.completion_time = completion_time
+        self.status = True
         
         if outcome:  # If the card was answered correctly
             self.repetitions += 1
-            self.total_correct += 1            
             
             if ease_of_recall:
                 self.ease_factor += 0.2
@@ -124,23 +120,22 @@ class Review(models.Model):
             self.level = Level.objects.get(level_number=3)
         else:
             self.interval *= self.ease_factor
-            if priority_level == 1:
+            if self.priority_level:
                 self.interval *= 0.9
             
             if self.repetitions >= 5 and self.ease_factor > 2.5:
                 self.level = Level.objects.get(level_number=4)
             elif self.repetitions >= 10 and self.ease_factor > 3:
                 self.level = Level.objects.get(level_number=5)
-        
-        self.next_review = self.last_review + timezone.timedelta(days=self.interval)
-        print(self.next_review)
-        print(self.level)
+
+        new_review = Review(card=card)
+        new_review.next_review = self.last_review + timezone.timedelta(days=self.interval)
+        total_reviews = Review.objects.filter(card=card).count()
         self.save()
+        new_review.save()
 
     def __str__(self):
         return f"Review of {self.card}"
-
-# ease should only be asked if correct answer is given
 
 class Notification(models.Model):
     message = models.TextField()

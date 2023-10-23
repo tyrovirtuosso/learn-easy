@@ -1,47 +1,72 @@
 {% block content %}
 
 <h2>{{ deck.deck_name }}</h2>
-<h3>{{ card.card_name }}</h3>
+{% comment %} <h3>{{ card.card_name }}</h3> {% endcomment %}
 {% if completion_time %}
   <p>Completion Time: {{ completion_time }} seconds</p>
 {% else %}
   <p id="timer">0.00</p>
 {% endif %}
 
+<p>{{ question }}</p>
+
 <form method="post" id="review-form">
   {% csrf_token %}
   {{ form.as_p }}
   <input type="hidden" id="completion_time" name="completion_time" value="">
-  <button type="submit">Submit</button>
+  {% if not answer_submitted %}
+    <button type="button" id="easy-button">Easy</button>
+    <button type="button" id="hard-button">Hard</button>
+  {% endif %}
+  <p id="checking-answer-message" style="display: none;">Checking answer, please wait...</p>
 </form>
 {% if feedback %}
   <p>{{ feedback }}</p>
-  <p>{{ outcome }}</p>
+  {% if outcome %}
+    <p>Correct Answer</p>
+  {% else %}
+    <p>Wrong Answer</p>
+  {% endif %}
   <a href="{% url 'decks:review' deck.id %}">Next Card</a>
 {% elif answer_submitted %}
-  <p>Checking answer...</p>
+  <p id="checking-answer-message">Checking answer, please wait...</p>
 {% endif %}
 
 <script>
   var startTime = new Date();
   var timerElement = document.getElementById('timer');
+  var easyButton = document.getElementById('easy-button');
+  var hardButton = document.getElementById('hard-button');
+  var checkingAnswerMessage = document.getElementById('checking-answer-message');
 
   var timerInterval = setInterval(function() {
     var now = new Date();
-    var timeDiff = now - startTime; // in ms
-    // strip the ms
+    var timeDiff = now - startTime;
     timeDiff /= 1000;
-
-    // get seconds 
     var seconds = Math.round(timeDiff % 60);
-    // ensure that it has 2 decimal places
     timerElement.textContent = seconds.toFixed(2);
   }, 1000);
 
-  document.getElementById('review-form').addEventListener('submit', function() {
+  easyButton.addEventListener('click', function() {
     clearInterval(timerInterval);
     document.getElementById('completion_time').value = timerElement.textContent;
+    document.getElementById('id_ease_of_recall').value = 'true'; // Set ease_of_recall to True
+    easyButton.style.display = 'none'; // Hide the "Easy" button
+    hardButton.style.display = 'none'; // Hide the "Hard" button
+    checkingAnswerMessage.style.display = 'block'; // Show the "Checking answer" message
+    document.getElementById('review-form').submit(); // Submit the form
+  });
+
+  hardButton.addEventListener('click', function() {
+    clearInterval(timerInterval);
+    document.getElementById('completion_time').value = timerElement.textContent;
+    document.getElementById('id_ease_of_recall').value = 'false'; // Set ease_of_recall to False
+    easyButton.style.display = 'none'; // Hide the "Easy" button
+    hardButton.style.display = 'none'; // Hide the "Hard" button
+    checkingAnswerMessage.style.display = 'block'; // Show the "Checking answer" message
+    document.getElementById('review-form').submit(); // Submit the form
   });
 </script>
+
 
 {% endblock %}

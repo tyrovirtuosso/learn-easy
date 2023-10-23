@@ -1,6 +1,7 @@
 from django.db import models
 import datetime
 from django.utils import timezone
+from django.db.models import Q
 
 class Deck(models.Model):
     user = models.ForeignKey('usersApp.CustomUser', on_delete=models.CASCADE)
@@ -11,11 +12,10 @@ class Deck(models.Model):
         unique_together = ['user', 'deck_name']
     
     def get_cards_for_revision(self):
-        # Get the current date
         today = timezone.now()
-        # Get the cards in this deck that are due for review
-        cards_due_for_review = self.cards.filter(review__next_review__lte=today)
-        cards_due_for_review = self.cards.filter(review__next_review__lte=today).order_by('-review__next_review')
+        cards_due_for_review = self.cards_deck.filter(
+            Q(review__next_review__lte=today) & ~Q(review__question=None) & Q(review__status=False)
+        ).order_by('-review__next_review')
         return cards_due_for_review
 
     def __str__(self):

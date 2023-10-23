@@ -132,29 +132,29 @@ SOCIALACCOUNT_PROVIDERS = {
     
 }
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
+}
 
 # Connecting to Custom Serverless Cloud PostgreSQL DB
-HOST=os.environ.get('AWS_POSTGRE_HOST')
-USER=os.environ.get('AWS_POSTGRE_USERNAME')
-PASSWORD=os.environ.get('AWS_POSTGRE_PASSWORD')
-PORT=int(os.environ.get('AWS_POSTGRE_PORT'))
-DATABASE=os.environ.get('AWS_POSTGRE_DATABASE')
+# HOST=os.environ.get('AWS_POSTGRE_HOST')
+# USER=os.environ.get('AWS_POSTGRE_USERNAME')
+# PASSWORD=os.environ.get('AWS_POSTGRE_PASSWORD')
+# PORT=int(os.environ.get('AWS_POSTGRE_PORT'))
+# DATABASE=os.environ.get('AWS_POSTGRE_DATABASE')
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': DATABASE,
-        'USER': USER,
-        'PASSWORD': PASSWORD,
-        'HOST': HOST,
-        'PORT': PORT,
-    }}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': DATABASE,
+#         'USER': USER,
+#         'PASSWORD': PASSWORD,
+#         'HOST': HOST,
+#         'PORT': PORT,
+#     }}
 
 
 AUTH_PASSWORD_VALIDATORS = [
