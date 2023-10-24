@@ -1,6 +1,5 @@
 {% extends '_base.html' %}
 
-
 {% block content %}
 {% if user.is_authenticated %}
   Welcome, {{ user.email }}!
@@ -12,3 +11,5 @@
   <a href="{% url 'account_signup' %}">Sign Up</a>
 {% endif %}
 {% endblock %}
+
+

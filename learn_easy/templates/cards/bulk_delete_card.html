@@ -1,14 +1,9 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Card Detail</title>
-</head>
-<body>
+{% extends '_base.html' %}
 
-    <h1>Bulk Delete Card</h1>
-    <p>Delete the card "{{ card.card_name }}" from selected decks:</p>
-    {% include 'cards/card_detail.html' %}
+{% block content %}
 
+<h1>Bulk Delete Card</h1>
+<p>Delete the card "{{ card.card_name }}" from selected decks:</p>
+{% include 'cards/card_detail.html' %}
 
-</body>
-</html>
+{% endblock %}

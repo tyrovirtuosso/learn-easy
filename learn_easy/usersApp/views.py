@@ -1,10 +1,21 @@
 from django.core.mail import send_mail
 from django.urls import reverse
 from django.shortcuts import render, redirect
+from django.http import HttpRequest, HttpResponse
 from .models import OneTimeToken, CustomUser
 from django.contrib.auth import login
 
-def login_request(request):
+
+def login_request(request: HttpRequest) -> HttpResponse:
+    """
+    Handle login request and send a one-time login link via email.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: Response for rendering a page.
+    """
     if request.method == 'POST':
         email = request.POST['email']
         user, created = CustomUser.objects.get_or_create(email=email)
@@ -15,7 +26,16 @@ def login_request(request):
     else:
         return render(request, 'account/login_request.html')
 
-def login_view(request):
+def login_view(request: HttpRequest) -> HttpResponse:
+    """
+    Handle login using a one-time token.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: Response for rendering a page.
+    """
     token = request.GET.get('token')
     if token is not None:
         try:
