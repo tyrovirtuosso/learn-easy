@@ -32,7 +32,7 @@ INSTALLED_APPS = [
     # Django Extensions
     "django_extensions",
     # Custom Apps
-    "usersApp.apps.UsersappConfig",
+    "usersApp.apps.UsersAppConfig",
     "cards.apps.CardsConfig",
     "decks.apps.DecksConfig",
     "dashboard.apps.DashboardConfig",
@@ -125,9 +125,6 @@ SOCIALACCOUNT_PROVIDERS = {
             'profile',
             'email',
         ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
-        }
     }
     
 }
